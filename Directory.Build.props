@@ -3,17 +3,27 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="all" />
   </ItemGroup>
   <PropertyGroup>
+    <!-- Output all build artifacts into .Build folder at the repo root -->
+    <BaseOutputPath>$(SolutionDir).Build\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(SolutionDir).Build\obj\</BaseIntermediateOutputPath>
+
+    <!-- Optional: Structure outputs by project + configuration -->
+    <OutputPath>$(BaseOutputPath)$(MSBuildProjectName)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
+
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AnalysisLevel>latest</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <LangVersion>preview</LangVersion>
     <Version>1.0.0</Version>
+
     <Authors>Ivan Krepyshev</Authors>
     <Company>Ivan Krepyshev</Company>
+
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 </Project>

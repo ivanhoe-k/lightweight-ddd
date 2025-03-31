@@ -1,102 +1,136 @@
-# Top-most EditorConfig file
-root = true
+﻿root = true
 
 [*.cs]
 
-##############
-# Code Style #
-##############
+# SA1200: Using directives should be placed correctly
+dotnet_diagnostic.SA1200.severity = none
 
-# Avoid 'this.' prefix
-dotnet_style_qualification_for_field = false:none
-dotnet_style_qualification_for_property = false:none
-dotnet_style_qualification_for_method = false:none
-dotnet_style_qualification_for_event = false:none
+# Default severity for all analyzer diagnostics
+dotnet_analyzer_diagnostic.severity = none
 
-# Expression-bodied members
-csharp_style_expression_bodied_methods = false:suggestion
-csharp_style_expression_bodied_properties = true:suggestion
-csharp_style_expression_bodied_accessors = true:suggestion
+# SA1633: File should have header
+dotnet_diagnostic.SA1633.severity = none
 
-# Require braces for control blocks
-csharp_prefer_braces = true:error
+# SA1309: Field names should not begin with underscore
+dotnet_diagnostic.SA1309.severity = none
 
-# Var preferences
-csharp_style_var_for_built_in_types = true:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-csharp_style_var_elsewhere = false:warning
+# SA1101: Prefix local calls with this
+dotnet_diagnostic.SA1101.severity = none
 
-# Modifier ordering (e.g., public static readonly)
-csharp_preferred_modifier_order = public, protected, internal, private, static, readonly, abstract, virtual, sealed, override, unsafe, async:warning
+# SA1010: Opening square brackets should be spaced correctly
+dotnet_diagnostic.SA1010.severity = none
 
-#########################
-# Null Safety & Quality #
-#########################
+# SA1600: Xml comments
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.CS1591.severity = none
 
-# Enforce null checks on public methods
-dotnet_diagnostic.CA1062.severity = warning
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
 
-# Encourage use of ?. and ??
-dotnet_style_null_propagation = true:warning
-dotnet_style_coalesce_expression = true:warning
+# SA1200: Mark members as static
+dotnet_diagnostic.CA1822.severity = none
 
-##############
-# Formatting #
-##############
+# SA1313: Parameter names should begin with lower-case letter
+dotnet_diagnostic.SA1313.severity = none
 
-indent_style = space
+# CA1040: Avoid empty interfaces
+dotnet_diagnostic.CA1040.severity = warning
+
+# CA1056: Uri properties should not be strings
+dotnet_diagnostic.CA1056.severity = none
+
+# CA1033: Interface methods should be callable by child types
+dotnet_diagnostic.CA1033.severity = none
+
+# CA1054: Uri parameters should not be strings
+dotnet_diagnostic.CA1054.severity = none
+
+# CA2208: Instantiate argument exceptions correctly
+dotnet_diagnostic.CA2208.severity = none
+
+# CA2007: Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.CA2007.severity = none
+
+# CS8618: Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+dotnet_diagnostic.CS8618.severity = none
+
+# CA1308: Normalize strings to uppercase
+dotnet_diagnostic.CA1308.severity = none
+csharp_indent_labels = one_less_than_current
+csharp_using_directive_placement = outside_namespace:silent
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_prefer_braces = true:silent
+csharp_style_namespace_declarations = block_scoped:silent
+csharp_style_prefer_method_group_conversion = true:silent
+csharp_style_prefer_top_level_statements = true:silent
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_expression_bodied_methods = false:silent
+csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_operators = false:silent
+csharp_style_expression_bodied_properties = true:silent
+csharp_style_expression_bodied_indexers = true:silent
+csharp_style_expression_bodied_accessors = true:silent
+csharp_style_expression_bodied_lambdas = true:silent
+csharp_style_expression_bodied_local_functions = false:silent
+
+# CA1024: Use properties where appropriate
+dotnet_diagnostic.CA1024.severity = none
+csharp_prefer_system_threading_lock = true:suggestion
+
+[*.{cs,vb}]
+#### Naming styles ####
+
+# Naming rules
+
+dotnet_naming_rule.interface_should_be_begins_with_i.severity = suggestion
+dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
+dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
+
+dotnet_naming_rule.types_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_rule.non_field_members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_field_members_should_be_pascal_case.symbols = non_field_members
+dotnet_naming_rule.non_field_members_should_be_pascal_case.style = pascal_case
+
+# Symbol specifications
+
+dotnet_naming_symbols.interface.applicable_kinds = interface
+dotnet_naming_symbols.interface.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
+dotnet_naming_symbols.interface.required_modifiers = 
+
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum
+dotnet_naming_symbols.types.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
+dotnet_naming_symbols.types.required_modifiers = 
+
+dotnet_naming_symbols.non_field_members.applicable_kinds = property, event, method
+dotnet_naming_symbols.non_field_members.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
+dotnet_naming_symbols.non_field_members.required_modifiers = 
+
+# Naming styles
+
+dotnet_naming_style.begins_with_i.required_prefix = I
+dotnet_naming_style.begins_with_i.required_suffix = 
+dotnet_naming_style.begins_with_i.word_separator = 
+dotnet_naming_style.begins_with_i.capitalization = pascal_case
+
+dotnet_naming_style.pascal_case.required_prefix = 
+dotnet_naming_style.pascal_case.required_suffix = 
+dotnet_naming_style.pascal_case.word_separator = 
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+dotnet_naming_style.pascal_case.required_prefix = 
+dotnet_naming_style.pascal_case.required_suffix = 
+dotnet_naming_style.pascal_case.word_separator = 
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+dotnet_style_operator_placement_when_wrapping = beginning_of_line
+tab_width = 4
 indent_size = 4
-insert_final_newline = true
-trim_trailing_whitespace = true
-
-##########################
-# Using Directive Rules  #
-##########################
-
-# Enforce alphabetic ordering
-dotnet_sort_system_directives_first = true
-dotnet_separate_import_directive_groups = true
-
-######################
-# Naming Conventions #
-######################
-
-# Require _underscore for private fields
-dotnet_diagnostic.SA1309.severity = error
-
-# Public members PascalCase
-dotnet_naming_rule.public_members_should_be_pascal_case.severity = warning
-dotnet_naming_rule.public_members_should_be_pascal_case.symbols = public_symbols
-dotnet_naming_rule.public_members_should_be_pascal_case.style = pascal_case_style
-
-dotnet_naming_symbols.public_symbols.applicable_accessibilities = public
-dotnet_naming_symbols.public_symbols.applicable_kinds = property, method, field, event
-dotnet_naming_symbols.public_symbols.required_modifiers = 
-
-dotnet_naming_style.pascal_case_style.capitalization = pascal_case
-
-#########################
-# StyleCop Preferences  #
-#########################
-
-# Disable noisy StyleCop rules
-dotnet_diagnostic.SA1200.severity = none      # Using placement
-dotnet_diagnostic.SA1402.severity = none      # One type per file
-dotnet_diagnostic.SA1633.severity = none      # File header
-dotnet_diagnostic.SA1121.severity = none      # Use built-in types
-dotnet_diagnostic.SA1600.severity = suggestion # Missing XML docs
-
-# Keep useful rules
-dotnet_diagnostic.SA1101.severity = none      # 'this.' prefix — explicitly disabled
-dotnet_diagnostic.SA1300.severity = warning   # Identifier casing
-dotnet_diagnostic.SA1500.severity = warning   # Braces must not share line
-
-# Enforce file name to match class name
-dotnet_diagnostic.SA1649.severity = error
-
-# Enforce one type per file
-dotnet_diagnostic.SA1402.severity = error
-
-# Require class members — at least a comment or a constructor.
-dotnet_diagnostic.SA1501.severity = warning   # Braces must not be on same line
-dotnet_diagnostic.SA1600.severity = warning   # Require XML documentation
+end_of_line = crlf
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+dotnet_style_prefer_auto_properties = true:silent
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
