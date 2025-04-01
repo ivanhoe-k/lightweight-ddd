@@ -5,15 +5,17 @@ using LightweightDdd.DomainModel;
 using LightweightDdd.Events;
 using LightweightDdd.Examples.Domain.Errors;
 using LightweightDdd.Examples.Domain.Events.Profile;
+using LightweightDdd.Examples.Domain.Models.Virtualization;
 using LightweightDdd.Results;
+using LightweightDdd.Virtualization;
 using System;
 using System.Collections.Generic;
 
 namespace LightweightDdd.Examples.Domain.Models
 {
-    public sealed class Profile : VersionedDomainEntity<Guid>
+    public class Profile : VersionedDomainEntity<Guid>, IVirtualizable<VirtualProfile, VirtualProfileArgs, Guid>
     {
-        private Profile(Guid id, long version)
+        protected Profile(Guid id, long version)
             : base(id: id, version: version)
         {
             Gallery = Array.Empty<Media>();
@@ -31,19 +33,29 @@ namespace LightweightDdd.Examples.Domain.Models
                 version: version));
         }
 
-        public PersonalInfo? PersonalInfo { get; private set; }
+        public static Result<IError, VirtualProfile> CreateVirtual(Guid id, long version, VirtualProfileArgs args)
+        {
+            if (id == Guid.Empty)
+            {
+                return Result<IError>.Fail<VirtualProfile>(ProfileError.InvalidId());
+            }
 
-        public Media? Avatar { get; private set; }
+            return Result<IError>.Ok(new VirtualProfile(id, version, args));
+        }
 
-        public Media? BackgroundImage { get; private set; }
+        public virtual PersonalInfo? PersonalInfo { get; protected set; }
 
-        public Address? Address { get; private set; }
+        public virtual Media? Avatar { get; protected set; }
 
-        public IReadOnlyCollection<Media> Gallery { get; private set; }
+        public virtual Media? BackgroundImage { get; protected set; }
 
-        public VerificationStatus Verification { get; private set; } = VerificationStatus.Unverified;
+        public virtual Address? Address { get; protected set; }
 
-        public bool IsOnboarded => PersonalInfo is not null && Avatar is not null;
+        public virtual IReadOnlyCollection<Media> Gallery { get; protected set; }
+
+        public virtual VerificationStatus Verification { get; protected set; } = VerificationStatus.Unverified;
+
+        public virtual bool IsOnboarded { get; protected set; }
 
         public Result<IDomainError, Profile> CompleteOnboarding(PersonalInfo personalInfo, Media avatar)
         {
@@ -54,6 +66,7 @@ namespace LightweightDdd.Examples.Domain.Models
 
             PersonalInfo = personalInfo;
             Avatar = avatar;
+            IsOnboarded = true;
 
             AddDomainEvent(ProfileOnboardedDomainEvent.Create(profileId: Id));
 
