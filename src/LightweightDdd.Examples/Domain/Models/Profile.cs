@@ -51,6 +51,8 @@ namespace LightweightDdd.Examples.Domain.Models
 
         public virtual Address? Address { get; protected set; }
 
+        public SubscriptionPlan Subscription { get; private set; } = SubscriptionPlan.Free;
+
         public virtual IReadOnlyCollection<Media> Gallery { get; protected set; }
 
         public virtual VerificationStatus Verification { get; protected set; } = VerificationStatus.Unverified;
@@ -125,11 +127,16 @@ namespace LightweightDdd.Examples.Domain.Models
             return Result<IDomainError>.Ok(this);
         }
 
-        public Result<IDomainError, Profile> ReplaceGallery(IReadOnlyCollection<Media> gallery)
+        public Result<IDomainError, Profile> UpdateGallery(IReadOnlyCollection<Media> gallery)
         {
             if (gallery is null)
             {
-                return Result<IDomainError>.Fail<Profile>(ProfileError.InvalidGallery());
+                return Result<IDomainError>.Fail<Profile>(GalleryError.GalleryNotProvided());
+            }
+
+            if (gallery.Count > Subscription.MaxGalleryImages)
+            {
+                return Result<IDomainError>.Fail<Profile>(GalleryError.ExceedsImageLimit());
             }
 
             Gallery = gallery;
