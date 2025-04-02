@@ -12,31 +12,31 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
     {
         private VirtualProfileArgs()
         {
-            PersonalInfo = VirtualProfileProperty<PersonalInfo?>.CreateFor(profile => profile.PersonalInfo);
-            Avatar = VirtualProfileProperty<Media?>.CreateFor(profile => profile.Avatar);
-            BackgroundImage = VirtualProfileProperty<Media?>.CreateFor(profile => profile.BackgroundImage);
-            Address = VirtualProfileProperty<Address?>.CreateFor(profile => profile.Address);
-            Subscription = VirtualProfileProperty<SubscriptionPlan>.CreateFor(profile => profile.Subscription);
-            Gallery = VirtualProfileProperty<IReadOnlyCollection<Media>>.CreateFor(profile => profile.Gallery);
-            Verification = VirtualProfileProperty<VerificationStatus>.CreateFor(profile => profile.Verification);
-            IsOnboarded = VirtualProfileProperty<bool>.CreateFor(profile => profile.IsOnboarded);
+            PersonalInfo = NullableVirtualProperty<Profile, PersonalInfo?>.CreateFor(profile => profile.PersonalInfo);
+            Avatar = NullableVirtualProperty<Profile, Media?>.CreateFor(profile => profile.Avatar);
+            BackgroundImage = NullableVirtualProperty<Profile, Media?>.CreateFor(profile => profile.BackgroundImage);
+            Address = NullableVirtualProperty<Profile, Address?>.CreateFor(profile => profile.Address);
+            Subscription = VirtualProperty<Profile, SubscriptionPlan>.CreateFor(profile => profile.Subscription);
+            Gallery = VirtualProperty<Profile, IReadOnlyCollection<Media>>.CreateFor(profile => profile.Gallery);
+            Verification = VirtualProperty<Profile, VerificationStatus>.CreateFor(profile => profile.Verification);
+            IsOnboarded = VirtualProperty<Profile, bool>.CreateFor(profile => profile.IsOnboarded);
         }
 
-        public VirtualProfileProperty<PersonalInfo?> PersonalInfo { get; init; }
+        public NullableVirtualProperty<Profile, PersonalInfo?> PersonalInfo { get; init; }
 
-        public VirtualProfileProperty<Media?> Avatar { get; init; }
+        public NullableVirtualProperty<Profile, Media?> Avatar { get; init; }
 
-        public VirtualProfileProperty<Media?> BackgroundImage { get; init; }
+        public NullableVirtualProperty<Profile, Media?> BackgroundImage { get; init; }
 
-        public VirtualProfileProperty<Address?> Address { get; init; }
+        public NullableVirtualProperty<Profile, Address?> Address { get; init; }
 
-        public VirtualProfileProperty<SubscriptionPlan> Subscription { get; init; }
+        public VirtualProperty<Profile, SubscriptionPlan> Subscription { get; init; }
 
-        public VirtualProfileProperty<IReadOnlyCollection<Media>> Gallery { get; init; }
+        public VirtualProperty<Profile, IReadOnlyCollection<Media>> Gallery { get; init; }
 
-        public VirtualProfileProperty<VerificationStatus> Verification { get; init; }
+        public VirtualProperty<Profile, VerificationStatus> Verification { get; init; }
 
-        public VirtualProfileProperty<bool> IsOnboarded { get; init; }
+        public VirtualProperty<Profile, bool> IsOnboarded { get; init; }
 
 
         public static VirtualProfileArgsBuilder GetBuilder()

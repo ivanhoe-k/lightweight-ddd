@@ -21,4 +21,22 @@ namespace LightweightDdd.Core.Events
         /// </returns>
         Result<IError, IReadOnlyCollection<IDomainEffect>> Handle(IDomainEvent @event);
     }
+
+    /// <summary>
+    /// Represents a handler for a specific type of domain event.
+    /// Handlers may return zero or more domain effects, which describe the outcome of the event handling.
+    /// </summary>
+    /// <typeparam name="TEvent">The specific domain event type handled.</typeparam>
+    public interface IDomainEventHandler<TEvent> : IDomainEventHandler
+        where TEvent : IDomainEvent
+    {
+        /// <summary>
+        /// Handles a strongly typed domain event.
+        /// </summary>
+        /// <param name="event">The domain event instance.</param>
+        /// <returns>
+        /// A <see cref="Result{TError, TValue}"/> containing either an error or a collection of resulting domain effects.
+        /// </returns>
+        Result<IError, IReadOnlyCollection<IDomainEffect>> Handle(TEvent @event);
+    }
 }

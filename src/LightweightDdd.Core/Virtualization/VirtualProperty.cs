@@ -6,108 +6,111 @@ using System.Linq.Expressions;
 using LightweightDdd.Core.DomainModel;
 using LightweightDdd.Core.Extensions;
 using LightweightDdd.Core.Utilities;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LightweightDdd.Core.Virtualization
 {
     /// <summary>
-    /// Represents an immutable virtualized property within a partially materialized domain entity.
+    /// Represents a virtual property that enforces non-nullability at the type level.
     /// </summary>
-    /// <typeparam name="TEntity">The type of the domain entity the property belongs to.</typeparam>
-    /// <typeparam name="TProperty">The type of the property value.</typeparam>
-    /// <typeparam name="TSelf">
-    /// The concrete type implementing this virtual property (used for fluent resolution).
-    /// Uses the Curiously Recurring Template Pattern (CRTP) for fluent, type-safe construction.
-    /// </typeparam>
     /// <remarks>
-    /// This abstraction supports the Virtual Entity Pattern and is designed to be immutable.
-    /// It enables partial loading of aggregates while guarding against access to unresolved or unavailable data.
+    /// <para>
+    /// This is the non-nullable specialization of <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}"/>. 
+    /// It guarantees at runtime that the resolved value is never <c>null</c>.
+    /// </para>
     ///
-    /// A virtual property must be explicitly resolved via <see cref="Resolve"/> before being accessed.
-    /// Attempting to access it prematurely will throw a <see cref="VirtualPropertyAccessException"/>.
-    /// Use <see cref="GetValueOrThrow"/> to retrieve nullable values, or <see cref="GetRequiredValueOrThrow"/> to enforce non-null semantics.
+    /// <para>
+    /// The <typeparamref name="TProperty"/> is assumed to be non-nullable. If <c>null</c> is passed into the constructor,
+    /// an <see cref="ArgumentNullException"/> is thrown defensively at construction time.
+    /// </para>
+    ///
+    /// <para>
+    /// Consumers are expected to define concrete sealed leaf types such as:
+    /// <c>VirtualUserProperty{T}</c> or similar, using this class as a base.
+    /// </para>
     /// </remarks>
-    public record VirtualProperty<TEntity, TProperty, TSelf>
+    /// <typeparam name="TEntity">The domain entity type this virtual property is defined on.</typeparam>
+    /// <typeparam name="TProperty">The type of the resolved value. Must be non-nullable.</typeparam>
+    /// <typeparam name="TSelf">
+    /// The self-referencing type used for CRTP-style fluent factory methods. Must be a subclass of this type.
+    /// </typeparam>
+    public abstract record VirtualProperty<TEntity, TProperty, TSelf> : VirtualPropertyBase<TEntity, TProperty, TSelf>
         where TEntity : IDomainEntity
         where TSelf : VirtualProperty<TEntity, TProperty, TSelf>
     {
-        private readonly TProperty? _value;
-        private readonly bool _isResolved;
-        private readonly string _property;
-        private readonly string _entity;
-
         /// <summary>
-        /// Initializes an unresolved virtual property.
+        /// Initializes a new unresolved instance of the virtual property using a strongly typed expression.
         /// </summary>
-        /// <param name="propertyExp">A lambda expression identifying the property on the entity.</param>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyExp"/> is null.</exception>
+        /// <param name="propertyExp">The lambda expression representing the property being virtualized.</param>
         protected VirtualProperty(Expression<Func<TEntity, TProperty>> propertyExp)
-        {
-            propertyExp.ThrowIfNull();
-
-            _value = default;
-            _isResolved = false;
-            _property = ExpressionUtils.GetPropertyPath(propertyExp);
-            _entity = typeof(TEntity).Name;
+            : base(propertyExp) 
+        { 
         }
 
         /// <summary>
-        /// Initializes a resolved virtual property with a value.
+        /// Initializes a resolved instance of the virtual property with a required value.
         /// </summary>
         /// <param name="entity">The name of the owning entity.</param>
-        /// <param name="property">The name of the virtualized property.</param>
-        /// <param name="value">The resolved value of the property.</param>
-        protected VirtualProperty(string entity, string property, TProperty? value)
+        /// <param name="property">The name of the property.</param>
+        /// <param name="value">The resolved value. Must not be null.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="value"/> is null.</exception>
+        protected VirtualProperty(string entity, string property, TProperty value) : base(entity, property, value) 
         {
-            _entity = entity;
-            _property = property;
-            _isResolved = true;
-            _value = value;
+            value.ThrowIfNull();
         }
 
         /// <summary>
-        /// Resolves the virtual property with the given value.
+        /// Returns the resolved non-null value of the virtual property.
         /// </summary>
-        /// <param name="value">The value to assign to the property.</param>
-        /// <returns>A new, resolved instance of <typeparamref name="TSelf"/>.</returns>
-        public TSelf Resolve(TProperty? value)
+        /// <returns>The resolved <typeparamref name="TProperty"/> value.</returns>
+        /// <exception cref="VirtualPropertyAccessException">Thrown if the property is not resolved.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the resolved value is null (should not occur due to constructor enforcement).</exception>
+        public TProperty GetValueOrThrow() => InternalGetRequiredValueOrThrow();
+    }
+
+    /// <summary>
+    /// Represents a sealed, non-nullable virtual property that does not require subclassing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This is a built-in sealed variant of <see cref="VirtualProperty{TEntity, TProperty, TSelf}"/> 
+    /// that simplifies usage for cases where defining a dedicated subclass would be excessive.
+    /// </para>
+    ///
+    /// <para>
+    /// Internally, this type relies on reflection to construct instances, even though its constructors are <c>private</c>.
+    /// This is enabled via reflection and constructor metadata caching inside the virtualization infrastructure.
+    /// </para>
+    ///
+    /// <para>
+    /// This type must be instantiated via <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.CreateFor"/> and 
+    /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Resolve"/> factory methods only.
+    /// Public constructors are intentionally not exposed.
+    /// </para>
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type that owns the property.</typeparam>
+    /// <typeparam name="TProperty">The non-nullable value type of the virtual property.</typeparam>
+    public sealed record VirtualProperty<TEntity, TProperty> : VirtualProperty<TEntity, TProperty, VirtualProperty<TEntity, TProperty>>
+        where TEntity : IDomainEntity
+    {
+        /// <summary>
+        /// Private constructor for use by reflection during unresolved factory creation.
+        /// </summary>
+        /// <param name="expression">A lambda pointing to the unresolved property.</param>
+        private VirtualProperty(Expression<Func<TEntity, TProperty>> expression)
+            : base(expression)
         {
-            return (TSelf)Activator.CreateInstance(typeof(TSelf), _entity, _property, value)!;
         }
 
         /// <summary>
-        /// Returns the property value if it has been resolved; otherwise, throws an exception.
+        /// Private constructor for use by reflection during resolution with a known value.
         /// </summary>
-        /// <returns>The resolved value of the property, which may be null.</returns>
-        /// <exception cref="VirtualPropertyAccessException">Thrown if the property has not been resolved.</exception>
-        public TProperty? GetValueOrThrow()
+        /// <param name="entity">The owning entity name.</param>
+        /// <param name="property">The property name.</param>
+        /// <param name="value">The non-null resolved value.</param>
+        private VirtualProperty(string entity, string property, TProperty value)
+            : base(entity, property, value)
         {
-            if (!_isResolved)
-            {
-                throw new VirtualPropertyAccessException(_property, _entity);
-            }
-
-            return _value;
-        }
-
-        /// <summary>
-        /// Returns the property value if it has been resolved and is not null; otherwise, throws an exception.
-        /// </summary>
-        /// <returns>The resolved, non-null value of the property.</returns>
-        /// <exception cref="VirtualPropertyAccessException">Thrown if the property has not been resolved.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the resolved value is null.</exception>
-        public TProperty GetRequiredValueOrThrow()
-        {
-            if (!_isResolved)
-            {
-                throw new VirtualPropertyAccessException(_property, _entity);
-            }
-
-            if (_value is null)
-            {
-                throw new InvalidOperationException($"Property '{_property}' on entity '{_entity}' was resolved but contains a null value.");
-            }
-
-            return _value;
         }
     }
 }

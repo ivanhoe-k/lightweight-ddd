@@ -5,19 +5,20 @@ using LightweightDdd.Examples.Domain.Models;
 using LightweightDdd.Core.Extensions;
 using System;
 using System.Collections.Generic;
+using LightweightDdd.Core.Virtualization;
 
 namespace LightweightDdd.Examples.Domain.Models.Virtualization
 {
     public sealed class VirtualProfile : Profile
     {
-        private VirtualProfileProperty<PersonalInfo?> personalInfo;
-        private VirtualProfileProperty<Media?> avatar;
-        private VirtualProfileProperty<Media?> backgroundImage;
-        private VirtualProfileProperty<Address?> address;
-        private VirtualProfileProperty<SubscriptionPlan> subscription;
-        private VirtualProfileProperty<IReadOnlyCollection<Media>> gallery;
-        private VirtualProfileProperty<VerificationStatus> verification;
-        private VirtualProfileProperty<bool> isOnboarded;
+        private NullableVirtualProperty<Profile, PersonalInfo?> personalInfo;
+        private NullableVirtualProperty<Profile, Media?> avatar;
+        private NullableVirtualProperty<Profile, Media?> backgroundImage;
+        private NullableVirtualProperty<Profile, Address?> address;
+        private VirtualProperty<Profile, SubscriptionPlan> subscription;
+        private VirtualProperty<Profile, IReadOnlyCollection<Media>> gallery;
+        private VirtualProperty<Profile, VerificationStatus> verification;
+        private VirtualProperty<Profile, bool> isOnboarded;
 
         public override PersonalInfo? PersonalInfo
         {
@@ -45,25 +46,25 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
 
         public override SubscriptionPlan Subscription
         {
-            get => subscription.GetRequiredValueOrThrow();
+            get => subscription.GetValueOrThrow();
             protected set => subscription = subscription.Resolve(value);
         }
 
         public override IReadOnlyCollection<Media> Gallery
         {
-            get => gallery.GetRequiredValueOrThrow();
+            get => gallery.GetValueOrThrow();
             protected set => gallery = gallery.Resolve(value);
         }
 
         public override VerificationStatus Verification
         {
-            get => verification.GetRequiredValueOrThrow();
+            get => verification.GetValueOrThrow();
             protected set => verification = verification.Resolve(value);
         }
 
         public override bool IsOnboarded
         {
-            get => isOnboarded.GetRequiredValueOrThrow();
+            get => isOnboarded.GetValueOrThrow();
             protected set => isOnboarded = isOnboarded.Resolve(value);
         }
 
