@@ -24,11 +24,35 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 
 ## 📦 Included Projects
 
-| Project                   | Description                                                      |
-|---------------------------|------------------------------------------------------------------|
-| `LightweightDdd`          | Core library for reusable DDD patterns and building blocks       |
-| `LightweightDdd.Tests`    | Unit tests                |
-| `LightweightDdd.Examples` | Sample usage with realistic aggregates like `Profile`           |
+| Project                             | Description                                                              |
+|-------------------------------------|--------------------------------------------------------------------------|
+| `LightweightDdd.Core`              | Core building blocks and reusable DDD abstractions (domain entities, results, events, etc.) |
+| `LightweightDdd.Examples.Domain`   | Sample usage with realistic aggregates like `Profile` and its workflows  |
+| `LightweightDdd.Tests`             | Unit tests for both Core and Examples, structured by domain context      |
+
+---
+
+## 📁 Structure
+
+### `LightweightDdd.Core`
+| Folder            | Description                                               |
+|-------------------|-----------------------------------------------------------|
+| `DomainModel`     | Base abstractions for aggregates and entities             |
+| `Events`          | Domain event contracts and helper types                   |
+| `Results`         | Functional-style result modeling (`Result<T>`, `IError`)  |
+| `Virtualization`  | Virtual entity pattern core (e.g. `VirtualProperty<T>`)   |
+| `Extensions`      | Guard clauses and other domain-safe utilities             |
+| `Repositories`    | Domain-level repository contracts                         |
+| `Utilities`       | Shared low-level helpers                                  |
+
+### `LightweightDdd.Examples.Domain`
+| Folder         | Description                                                       |
+|----------------|-------------------------------------------------------------------|
+| `Models`       | Realistic aggregates and value objects (e.g. `Profile`, `Media`)  |
+| `Errors`       | Domain errors and error code enums                                |
+| `Events`       | Domain events emitted by aggregates                               |
+| `Contracts`    | Domain-level ports such as repositories and services              |
+| `Workflows`    | Domain workflows (orchestrators) coordinating domain operations   |
 
 ---
 
