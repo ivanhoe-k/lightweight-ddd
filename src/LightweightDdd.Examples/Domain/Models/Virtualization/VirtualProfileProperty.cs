@@ -20,6 +20,11 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
         {
         }
 
+        public VirtualProfileProperty(string entity, string property, TProperty? value)
+           : base(entity, property, value)
+        {
+        }
+
         public static VirtualProfileProperty<TProperty> CreateFor(Expression<Func<Profile, TProperty>> property)
         {
             property.ThrowIfNull();

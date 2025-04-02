@@ -3,13 +3,17 @@
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="all" />
   </ItemGroup>
   <PropertyGroup>
-    <!-- Output all build artifacts into .Build folder at the repo root -->
-    <BaseOutputPath>$(SolutionDir).Build\</BaseOutputPath>
-    <BaseIntermediateOutputPath>$(SolutionDir).Build\obj\</BaseIntermediateOutputPath>
-
-    <!-- Optional: Structure outputs by project + configuration -->
-    <OutputPath>$(BaseOutputPath)$(MSBuildProjectName)\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
+    <!-- Vars are not defined when building projects explicitly -->
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    
+    <!-- Output paths -->
+    <BaseIntermediateOutputPath>$(SolutionDir).Build\obj_$(Configuration)_$(Platform)\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(SolutionDir).Build\obj_$(Configuration)_$(Platform)\$(MSBuildProjectName)\</IntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(IntermediateOutputPath)\</MSBuildProjectExtensionsPath>
+    <OutputPath>$(SolutionDir).Build\bin_$(Configuration)_$(Platform)\$(MSBuildProjectName)\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+    <DocumentationFile>$(SolutionDir).Build\doc_$(Configuration)\$(MSBuildProjectName).xml</DocumentationFile>
 
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>

@@ -16,6 +16,7 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
             Avatar = VirtualProfileProperty<Media?>.CreateFor(profile => profile.Avatar);
             BackgroundImage = VirtualProfileProperty<Media?>.CreateFor(profile => profile.BackgroundImage);
             Address = VirtualProfileProperty<Address?>.CreateFor(profile => profile.Address);
+            Subscription = VirtualProfileProperty<SubscriptionPlan>.CreateFor(profile => profile.Subscription);
             Gallery = VirtualProfileProperty<IReadOnlyCollection<Media>>.CreateFor(profile => profile.Gallery);
             Verification = VirtualProfileProperty<VerificationStatus>.CreateFor(profile => profile.Verification);
             IsOnboarded = VirtualProfileProperty<bool>.CreateFor(profile => profile.IsOnboarded);
@@ -29,12 +30,15 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
 
         public VirtualProfileProperty<Address?> Address { get; init; }
 
+        public VirtualProfileProperty<SubscriptionPlan> Subscription { get; init; }
+
         public VirtualProfileProperty<IReadOnlyCollection<Media>> Gallery { get; init; }
 
         public VirtualProfileProperty<VerificationStatus> Verification { get; init; }
 
         public VirtualProfileProperty<bool> IsOnboarded { get; init; }
-            
+
+
         public static VirtualProfileArgsBuilder GetBuilder()
         {
             return new VirtualProfileArgsBuilder(new VirtualProfileArgs());

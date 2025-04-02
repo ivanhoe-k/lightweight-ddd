@@ -18,7 +18,6 @@ namespace LightweightDdd.Examples.Domain.Models
         protected Profile(Guid id, long version)
             : base(id: id, version: version)
         {
-            Gallery = Array.Empty<Media>();
         }
 
         public static Result<IDomainError, Profile> Create(Guid id, long version)
@@ -51,11 +50,11 @@ namespace LightweightDdd.Examples.Domain.Models
 
         public virtual Address? Address { get; protected set; }
 
-        public SubscriptionPlan Subscription { get; private set; } = SubscriptionPlan.Free;
+        public virtual SubscriptionPlan Subscription { get; protected set; }
 
         public virtual IReadOnlyCollection<Media> Gallery { get; protected set; }
 
-        public virtual VerificationStatus Verification { get; protected set; } = VerificationStatus.Unverified;
+        public virtual VerificationStatus Verification { get; protected set; }
 
         public virtual bool IsOnboarded { get; protected set; }
 

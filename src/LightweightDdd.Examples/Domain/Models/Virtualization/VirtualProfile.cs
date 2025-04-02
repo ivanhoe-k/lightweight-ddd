@@ -14,6 +14,7 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
         private VirtualProfileProperty<Media?> avatar;
         private VirtualProfileProperty<Media?> backgroundImage;
         private VirtualProfileProperty<Address?> address;
+        private VirtualProfileProperty<SubscriptionPlan> subscription;
         private VirtualProfileProperty<IReadOnlyCollection<Media>> gallery;
         private VirtualProfileProperty<VerificationStatus> verification;
         private VirtualProfileProperty<bool> isOnboarded;
@@ -42,6 +43,12 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
             protected set => address = address.Resolve(value);
         }
 
+        public override SubscriptionPlan Subscription
+        {
+            get => subscription.GetRequiredValueOrThrow();
+            protected set => subscription = subscription.Resolve(value);
+        }
+
         public override IReadOnlyCollection<Media> Gallery
         {
             get => gallery.GetRequiredValueOrThrow();
@@ -68,6 +75,7 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
             avatar = args.Avatar;
             backgroundImage = args.BackgroundImage;
             address = args.Address;
+            subscription = args.Subscription;
             gallery = args.Gallery;
             verification = args.Verification;
             isOnboarded = args.IsOnboarded;

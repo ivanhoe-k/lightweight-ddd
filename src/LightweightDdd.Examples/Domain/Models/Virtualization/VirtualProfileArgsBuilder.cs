@@ -83,6 +83,15 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
             };
             return this;
         }
+
+        public VirtualProfileArgsBuilder WithSubscription(SubscriptionPlan value)
+        {
+            _args = _args with
+            {
+                Subscription = _args.Subscription.Resolve(value)
+            };
+            return this;
+        }
     }
 
 }
