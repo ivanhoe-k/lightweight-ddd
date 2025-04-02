@@ -27,7 +27,7 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 | Project                   | Description                                                      |
 |---------------------------|------------------------------------------------------------------|
 | `LightweightDdd`          | Core library for reusable DDD patterns and building blocks       |
-| `LightweightDdd.Tests`    | Unit tests for the core library (coming soon...)                |
+| `LightweightDdd.Tests`    | Unit tests                |
 | `LightweightDdd.Examples` | Sample usage with realistic aggregates like `Profile`           |
 
 ---
@@ -35,11 +35,13 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 ## 🔍 Included Patterns (So Far)
 
 - ✅ `DomainEntity<TKey>` and `VersionedDomainEntity<TKey>`
-- ✅ `IDomainEvent`, `IDomainEntity`, and event dispatching contracts
-- ✅ `Result<T>`, `IError` for structured result modeling and control flow
+- ✅ `IDomainEvent`, `IDomainEntity`, and domain event dispatching contracts
+- ✅ `Result<T>`, `IError` for explicit control flow and structured errors
 - ✅ Virtual Entity Pattern for safe partial hydration of aggregates  
   (includes `VirtualProfile`, `VirtualProperty<T>`, fluent builder + args model)
 - ✅ Guard extensions for expressive null/default checks
+- ✅ Domain-level workflows for orchestrating domain logic in a consistent and technology-agnostic way
+- ✅ Read/Write repository split to encourage logical CQRS boundaries in the domain layer
 
 > More will be added and refined over time.
 
@@ -57,7 +59,7 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 
 ---
 
-## 🧪 Example: Virtual Entity with Profile
+## 🧪 Example Use Case: Profile + Virtual Entity Pattern
 
 The `LightweightDdd.Examples` project includes a working `Profile` aggregate that demonstrates:
 
@@ -70,7 +72,7 @@ The `LightweightDdd.Examples` project includes a working `Profile` aggregate tha
 
 This example shows how to avoid over-fetching, prevent silent logic errors, and still maintain rich domain behavior — even when dealing with partial state.
 
-🔧 This is still a work in progress. The example is not yet complete, and more patterns and scenarios will be added as time allows.
+🔧 This is still a work in progress. The example will grow as more patterns and workflows are added.
 
 ### 🔄 Hypothetical Usage
 
