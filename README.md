@@ -1,4 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Unit Tests](https://github.com/ivanhoe-k/lightweight-ddd/actions/workflows/unit_tests_ci.yml/badge.svg)](https://github.com/ivanhoe-k/lightweight-ddd/actions/workflows/unit_tests_ci.yml)
 
 # Lightweight.DDD – Practical Patterns and Ideas from Real Projects
 
@@ -62,7 +63,7 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 - ✅ `IDomainEvent`, `IDomainEntity`, and domain event dispatching contracts
 - ✅ `Result<T>`, `IError` for explicit control flow and structured errors
 - ✅ Virtual Entity Pattern for safe partial hydration of aggregates  
-  (includes `VirtualProfile`, `VirtualProperty<T>`, fluent builder + args model)
+  (includes `VirtualPropertyBase<TEntity, TProperty, TSelf>`, `VirtualProperty<TEntity, TProperty, TSelf>`, `NullableVirtualProperty<TEntity, TProperty, TSelf>`, and their sealed variants `VirtualProperty<TEntity, TProperty>` and `NullableVirtualProperty<TEntity, TProperty>`.)
 - ✅ Guard extensions for expressive null/default checks
 - ✅ Domain-level workflows for orchestrating domain logic in a consistent and technology-agnostic way
 - ✅ Read/Write repository split to encourage logical CQRS boundaries in the domain layer

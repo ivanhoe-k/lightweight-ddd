@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System;
 using LightweightDdd.Core.Extensions;
 using System.Reflection;
+using LightweightDdd.Core.Virtualization.Exceptions;
 
 namespace LightweightDdd.Core.Virtualization
 {
@@ -120,22 +121,24 @@ namespace LightweightDdd.Core.Virtualization
             propertyExp.ThrowIfNull();
 
             EnsureConstructorCacheInitialized();
-            return (TSelf)_expressionCtor!.Invoke(new object[] { propertyExp });
+
+            return InvokeConstructor(_expressionCtor!, new object[] { propertyExp });
         }
 
         /// <summary>
-        /// Creates a new resolved copy of the current virtual property.
+        /// Creates a new resolved copy of the current virtual property with the specified value.
         /// </summary>
+        /// <remarks>
+        /// This method is idempotent and side-effect free. Calling <c>Resolve</c> multiple times
+        /// is allowed and results in new immutable instances.
+        /// </remarks>
         /// <param name="value">The value to resolve this property with.</param>
-        /// <returns>A new resolved instance of <typeparamref name="TSelf"/> with the given value.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if a matching non-public constructor is not found. Only private/protected constructors are allowed.
-        /// </exception>
+        /// <returns>A new resolved instance of <typeparamref name="TSelf"/>.</returns>
         public TSelf Resolve(TProperty? value)
         {
             EnsureConstructorCacheInitialized();
 
-            return (TSelf)_resolvedCtor!.Invoke(new object[] { _entity, _property, value });
+            return InvokeConstructor(_resolvedCtor!, new object[] { _entity, _property, value });
         }
 
         /// <summary>
@@ -178,10 +181,18 @@ namespace LightweightDdd.Core.Virtualization
         /// Initializes and caches constructor information via reflection.
         /// </summary>
         /// <remarks>
-        /// This method is called once per closed generic type (TSelf). It caches the constructors required
-        /// to support runtime creation via <see cref="CreateFor"/> and <see cref="Resolve"/>.
-        /// Only non-public constructors are allowed. Public constructors will cause a failure.
+        /// This method is called once per closed generic type (<typeparamref name="TSelf"/>).
+        /// It resolves and caches the two required constructors needed to support runtime creation via
+        /// <see cref="CreateFor"/> and <see cref="Resolve"/>:
+        /// one for expression-based initialization and one for direct value-based resolution.
+        /// <para>
+        /// Only non-public constructors (private or protected) are allowed.
+        /// Public constructors will not be considered and their presence will not prevent failure if private ones are missing.
+        /// </para>
         /// </remarks>
+        /// <exception cref="VirtualPropertyConstructorResolutionException">
+        /// Thrown if the required constructor(s) cannot be found.
+        /// </exception>
         private static void EnsureConstructorCacheInitialized()
         {
             if (_initialized)
@@ -196,21 +207,70 @@ namespace LightweightDdd.Core.Virtualization
                     return;
                 }
 
-                _expressionCtor = ReflectionUtils.GetVirtualPropertyConstructorOrThrow(
-                   entityType: typeof(TEntity),
-                   propertyType: typeof(TProperty),
-                   virtualPropertyType: typeof(TSelf),
-                   isExpressionCtor: true,
-                   bindingFlags: BindingFlags.Instance | BindingFlags.NonPublic);
+                _expressionCtor = GetOrThrowConstructor(
+                    entityType: typeof(TEntity),
+                    propertyType: typeof(TProperty),
+                    virtualPropertyType: typeof(TSelf),
+                    isExpressionCtor: true);
 
-                _resolvedCtor = ReflectionUtils.GetVirtualPropertyConstructorOrThrow(
-                   entityType: typeof(TEntity),
-                   propertyType: typeof(TProperty),
-                   virtualPropertyType: typeof(TSelf),
-                   isExpressionCtor: false,
-                   bindingFlags: BindingFlags.Instance | BindingFlags.NonPublic);
+                _resolvedCtor = GetOrThrowConstructor(
+                    entityType: typeof(TEntity),
+                    propertyType: typeof(TProperty),
+                    virtualPropertyType: typeof(TSelf),
+                    isExpressionCtor: false);
 
                 _initialized = true;
+            }
+        }
+
+        private static ConstructorInfo GetOrThrowConstructor(
+            Type entityType,
+            Type propertyType,
+            Type virtualPropertyType,
+            bool isExpressionCtor)
+        {
+            var ctor = ReflectionUtils.GetVirtualPropertyConstructorOrThrow(
+                entityType,
+                propertyType,
+                virtualPropertyType,
+                isExpressionCtor,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            if (ctor is null)
+            {
+                var args = isExpressionCtor
+                    ? new[] { ReflectionUtils.GetExpressionConstructorType(entityType, propertyType) }
+                    : ReflectionUtils.GetVirtualPropertyResolvedConstructorTypes(propertyType);
+
+                throw new VirtualPropertyConstructorResolutionException(virtualPropertyType, args);
+            }
+
+            return ctor;
+        }
+
+        /// <summary>
+        /// Invokes the specified non-public constructor with the provided arguments and casts the result to <typeparamref name="TSelf"/>.
+        /// </summary>
+        /// <param name="ctor">The constructor to invoke.</param>
+        /// <param name="args">The arguments to pass to the constructor.</param>
+        /// <returns>A new instance of <typeparamref name="TSelf"/>.</returns>
+        /// <exception cref="Exception">
+        /// Re-throws any exception thrown by the constructor body directly, unwrapped from <see cref="TargetInvocationException"/>.
+        /// </exception>
+        /// <remarks>
+        /// This method ensures that any exception thrown by the invoked constructor is not wrapped in a
+        /// <see cref="TargetInvocationException"/>, making error handling and unit testing more predictable.
+        /// </remarks>
+        private static TSelf InvokeConstructor(ConstructorInfo ctor, object?[] args)
+        {
+            try
+            {
+                return (TSelf)ctor.Invoke(args);
+            }
+            catch (TargetInvocationException ex) when (ex.InnerException is not null)
+            {
+                // Re-throw the actual exception for clearer diagnostics
+                throw ex.InnerException;
             }
         }
     }

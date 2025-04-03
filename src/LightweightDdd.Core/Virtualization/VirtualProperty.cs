@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using LightweightDdd.Core.DomainModel;
 using LightweightDdd.Core.Extensions;
 using LightweightDdd.Core.Utilities;
+using LightweightDdd.Core.Virtualization.Exceptions;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LightweightDdd.Core.Virtualization
@@ -37,6 +38,7 @@ namespace LightweightDdd.Core.Virtualization
     public abstract record VirtualProperty<TEntity, TProperty, TSelf> : VirtualPropertyBase<TEntity, TProperty, TSelf>
         where TEntity : IDomainEntity
         where TSelf : VirtualProperty<TEntity, TProperty, TSelf>
+        where TProperty: notnull
     {
         /// <summary>
         /// Initializes a new unresolved instance of the virtual property using a strongly typed expression.
@@ -92,6 +94,7 @@ namespace LightweightDdd.Core.Virtualization
     /// <typeparam name="TProperty">The non-nullable value type of the virtual property.</typeparam>
     public sealed record VirtualProperty<TEntity, TProperty> : VirtualProperty<TEntity, TProperty, VirtualProperty<TEntity, TProperty>>
         where TEntity : IDomainEntity
+        where TProperty : notnull
     {
         /// <summary>
         /// Private constructor for use by reflection during unresolved factory creation.

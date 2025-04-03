@@ -27,7 +27,7 @@ namespace LightweightDdd.Core.Utilities
             return new[] { typeof(string),  typeof(string),propertyType };
         }
 
-        public static ConstructorInfo GetVirtualPropertyConstructorOrThrow(
+        public static ConstructorInfo? GetVirtualPropertyConstructorOrThrow(
             Type entityType,
             Type propertyType,
             Type virtualPropertyType,
@@ -42,10 +42,10 @@ namespace LightweightDdd.Core.Utilities
                 ? new[] { GetExpressionConstructorType(entityType, propertyType) }
                 : GetVirtualPropertyResolvedConstructorTypes(propertyType);
 
-            return GetConstructorOrThrow(virtualPropertyType, args, bindingFlags);
+            return GetConstructor(virtualPropertyType, args, bindingFlags);
         }
 
-        public static ConstructorInfo GetConstructorOrThrow(Type type, Type[] parameterTypes, BindingFlags bindingFlags)
+        public static ConstructorInfo? GetConstructor(Type type, Type[] parameterTypes, BindingFlags bindingFlags)
         {
             type.ThrowIfNull();
             parameterTypes.ThrowIfNull();
@@ -55,12 +55,6 @@ namespace LightweightDdd.Core.Utilities
                 binder: null,
                 types: parameterTypes,
                 modifiers: null);
-
-            if (ctor == null)
-            {
-                var paramList = string.Join(", ", parameterTypes.Select(t => t.Name));
-                throw new InvalidOperationException($"Constructor not found: {type.FullName}({paramList})");
-            }
 
             return ctor;
         }

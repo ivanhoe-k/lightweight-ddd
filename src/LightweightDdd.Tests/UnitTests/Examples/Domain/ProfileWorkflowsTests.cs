@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 using FluentAssertions;
 using LightweightDdd.Core.Results;
 
-namespace LightweightDdd.Tests.Examples.Domain
+namespace LightweightDdd.Tests.UnitTests.Examples.Domain
 {
-    public class ProfileWorkflowsTests
+    public sealed class ProfileWorkflowsTests
     {
         [Fact]
         public async Task ReplaceGallery_ShouldSucceed_WhenGalleryIsValid()

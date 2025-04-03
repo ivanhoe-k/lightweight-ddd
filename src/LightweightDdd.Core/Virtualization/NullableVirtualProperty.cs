@@ -3,6 +3,7 @@
 
 using LightweightDdd.Core.DomainModel;
 using LightweightDdd.Core.Extensions;
+using LightweightDdd.Core.Virtualization.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
