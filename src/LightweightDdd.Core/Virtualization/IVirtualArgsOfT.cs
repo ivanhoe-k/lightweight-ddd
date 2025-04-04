@@ -16,7 +16,7 @@ namespace LightweightDdd.Core.Virtualization
     /// <typeparam name="TBuilder">
     /// The concrete builder type that can be used to configure and construct this argument instance.
     /// </typeparam>
-    /// <typeparam name="TVirtualArgs">
+    /// <typeparam name="TSelf">
     /// The type of the virtual arguments class itself.
     /// </typeparam>
     /// <remarks>
