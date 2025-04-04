@@ -1,8 +1,8 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.Core.Events;
-using LightweightDdd.Core.Extensions;
+using LightweightDdd.Events;
+using LightweightDdd.Extensions;
 using System;
 
 namespace LightweightDdd.Examples.Domain.Events.Profile

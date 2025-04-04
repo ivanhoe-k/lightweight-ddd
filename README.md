@@ -27,7 +27,7 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 
 | Project                             | Description                                                              |
 |-------------------------------------|--------------------------------------------------------------------------|
-| `LightweightDdd.Core`              | Core building blocks and reusable DDD abstractions (domain entities, results, events, etc.) |
+| `LightweightDdd`              | Core building blocks and reusable DDD abstractions (domain entities, results, events, etc.) |
 | `LightweightDdd.Examples.Domain`   | Sample usage with realistic aggregates like `Profile` and its workflows  |
 | `LightweightDdd.Tests`             | Unit tests for both Core and Examples, structured by domain context      |
 
@@ -35,7 +35,7 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 
 ## 📁 Structure
 
-### `LightweightDdd.Core`
+### `LightweightDdd`
 | Folder            | Description                                               |
 |-------------------|-----------------------------------------------------------|
 | `DomainModel`     | Base abstractions for aggregates and entities             |

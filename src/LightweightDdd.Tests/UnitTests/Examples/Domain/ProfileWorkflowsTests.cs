@@ -9,7 +9,7 @@ using LightweightDdd.Examples.Domain;
 using Moq;
 using Microsoft.Extensions.Logging;
 using FluentAssertions;
-using LightweightDdd.Core.Results;
+using LightweightDdd.Results;
 
 namespace LightweightDdd.Tests.UnitTests.Examples.Domain
 {

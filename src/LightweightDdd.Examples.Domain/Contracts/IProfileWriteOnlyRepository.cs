@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using LightweightDdd.Examples.Domain.Models;
-using LightweightDdd.Core.Results;
+using LightweightDdd.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;

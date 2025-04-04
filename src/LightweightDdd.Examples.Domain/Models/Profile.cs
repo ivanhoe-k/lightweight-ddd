@@ -1,13 +1,13 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.Core.DomainModel;
-using LightweightDdd.Core.Events;
+using LightweightDdd.DomainModel;
+using LightweightDdd.Events;
 using LightweightDdd.Examples.Domain.Errors;
 using LightweightDdd.Examples.Domain.Events.Profile;
 using LightweightDdd.Examples.Domain.Models.Virtualization;
-using LightweightDdd.Core.Results;
-using LightweightDdd.Core.Virtualization;
+using LightweightDdd.Results;
+using LightweightDdd.Virtualization;
 using System;
 using System.Collections.Generic;
 

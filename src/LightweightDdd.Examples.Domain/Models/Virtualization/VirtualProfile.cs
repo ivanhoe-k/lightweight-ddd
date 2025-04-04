@@ -2,10 +2,10 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using LightweightDdd.Examples.Domain.Models;
-using LightweightDdd.Core.Extensions;
+using LightweightDdd.Extensions;
 using System;
 using System.Collections.Generic;
-using LightweightDdd.Core.Virtualization;
+using LightweightDdd.Virtualization;
 
 namespace LightweightDdd.Examples.Domain.Models.Virtualization
 {

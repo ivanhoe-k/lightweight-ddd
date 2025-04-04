@@ -2,9 +2,9 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using LightweightDdd.Core.DomainModel;
-using LightweightDdd.Core.Virtualization;
-using LightweightDdd.Core.Virtualization.Exceptions;
+using LightweightDdd.DomainModel;
+using LightweightDdd.Virtualization;
+using LightweightDdd.Virtualization.Exceptions;
 using LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers;
 using System;
 using System.Linq.Expressions;

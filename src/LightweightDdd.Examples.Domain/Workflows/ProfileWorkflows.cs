@@ -3,8 +3,8 @@
 
 using LightweightDdd.Examples.Domain.Contracts;
 using LightweightDdd.Examples.Domain.Models;
-using LightweightDdd.Core.Extensions;
-using LightweightDdd.Core.Results;
+using LightweightDdd.Extensions;
+using LightweightDdd.Results;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;

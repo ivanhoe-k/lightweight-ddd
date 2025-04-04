@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
 using FluentAssertions;
-using LightweightDdd.Core.Extensions;
-using LightweightDdd.Core.Virtualization.Exceptions;
+using LightweightDdd.Extensions;
+using LightweightDdd.Virtualization.Exceptions;
 using LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers;
 using System.Reflection;
 
