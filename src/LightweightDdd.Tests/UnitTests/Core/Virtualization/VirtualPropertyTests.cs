@@ -17,7 +17,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void VirtualProperty_ShouldThrow_WhenAccessedUnresolved()
         {
             // Arrange
-            var property = VirtualProperty<DummyEntity, int>.CreateFor(x => x.Age);
+            var property = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age);
 
             // Act
             Action act = () => property.GetValueOrThrow();
@@ -32,7 +32,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         {
             // Arrange
             var expected = 100;
-            var property = VirtualProperty<DummyEntity, int>.CreateFor(x => x.Age);
+            var property = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age);
 
             // Act
             var resolved = property.Resolve(expected);
@@ -45,7 +45,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void NullableVirtualProperty_ShouldThrow_WhenAccessedUnresolved()
         {
             // Arrange
-            var property = NullableVirtualProperty<DummyEntity, string>.CreateFor(x => x.OptionalName);
+            var property = NullableVirtualProperty<DummyEntity, string>.Unresolved(x => x.OptionalName);
 
             // Act
             Action act = () => property.GetValueOrThrow();
@@ -59,7 +59,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void NullableVirtualProperty_ShouldReturnNull_WhenResolvedWithNull()
         {
             // Arrange
-            var property = NullableVirtualProperty<DummyEntity, string>.CreateFor(x => x.OptionalName);
+            var property = NullableVirtualProperty<DummyEntity, string>.Unresolved(x => x.OptionalName);
 
             // Act
             var resolved = property.Resolve(null);
@@ -73,7 +73,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         {
             // Arrange
             var expected = "resolved";
-            var property = NullableVirtualProperty<DummyEntity, string>.CreateFor(x => x.OptionalName);
+            var property = NullableVirtualProperty<DummyEntity, string>.Unresolved(x => x.OptionalName);
 
             // Act
             var resolved = property.Resolve(expected);
@@ -83,13 +83,13 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         }
 
         [Fact]
-        public void VirtualProperty_ShouldThrow_WhenCreateForReceivesNullExpression()
+        public void VirtualProperty_ShouldThrow_WhenUnresolvedReceivesNullExpression()
         {
             // Arrange
             Expression<Func<DummyEntity, int>>? expression = null;
 
             // Act
-            Action act = () => VirtualProperty<DummyEntity, int>.CreateFor(expression!);
+            Action act = () => VirtualProperty<DummyEntity, int>.Unresolved(expression!);
 
             // Assert
             act.Should().Throw<ArgumentNullException>()
@@ -102,7 +102,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
             // Arrange
             var first = 42;
             var secondValue = 99;
-            var original = VirtualProperty<DummyEntity, int>.CreateFor(x => x.Age)
+            var original = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age)
                 .Resolve(first);
 
             // Act
@@ -118,7 +118,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         {
             // Arrange
             var expected = 123;
-            var property = NullableVirtualProperty<DummyEntity, int?>.CreateFor(x => x.Rating);
+            var property = NullableVirtualProperty<DummyEntity, int?>.Unresolved(x => x.Rating);
 
             // Act
             var resolvedWithNull = property.Resolve(null);

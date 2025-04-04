@@ -12,14 +12,14 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
     {
         private VirtualProfileArgs()
         {
-            PersonalInfo = NullableVirtualProperty<Profile, PersonalInfo?>.CreateFor(profile => profile.PersonalInfo);
-            Avatar = NullableVirtualProperty<Profile, Media?>.CreateFor(profile => profile.Avatar);
-            BackgroundImage = NullableVirtualProperty<Profile, Media?>.CreateFor(profile => profile.BackgroundImage);
-            Address = NullableVirtualProperty<Profile, Address?>.CreateFor(profile => profile.Address);
-            Subscription = VirtualProperty<Profile, SubscriptionPlan>.CreateFor(profile => profile.Subscription);
-            Gallery = VirtualProperty<Profile, IReadOnlyCollection<Media>>.CreateFor(profile => profile.Gallery);
-            Verification = VirtualProperty<Profile, VerificationStatus>.CreateFor(profile => profile.Verification);
-            IsOnboarded = VirtualProperty<Profile, bool>.CreateFor(profile => profile.IsOnboarded);
+            PersonalInfo = NullableVirtualProperty<Profile, PersonalInfo?>.Unresolved(profile => profile.PersonalInfo);
+            Avatar = NullableVirtualProperty<Profile, Media?>.Unresolved(profile => profile.Avatar);
+            BackgroundImage = NullableVirtualProperty<Profile, Media?>.Unresolved(profile => profile.BackgroundImage);
+            Address = NullableVirtualProperty<Profile, Address?>.Unresolved(profile => profile.Address);
+            Subscription = VirtualProperty<Profile, SubscriptionPlan>.Unresolved(profile => profile.Subscription);
+            Gallery = VirtualProperty<Profile, IReadOnlyCollection<Media>>.Unresolved(profile => profile.Gallery);
+            Verification = VirtualProperty<Profile, VerificationStatus>.Unresolved(profile => profile.Verification);
+            IsOnboarded = VirtualProperty<Profile, bool>.Unresolved(profile => profile.IsOnboarded);
         }
 
         public NullableVirtualProperty<Profile, PersonalInfo?> PersonalInfo { get; init; }

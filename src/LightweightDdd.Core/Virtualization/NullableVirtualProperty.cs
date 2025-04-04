@@ -81,7 +81,7 @@ namespace LightweightDdd.Core.Virtualization
     ///
     /// <para>
     /// This type must be instantiated via
-    /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.CreateFor"/> and
+    /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Unresolved"/> and
     /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Resolve"/> factory methods only.
     /// Public constructors are intentionally not exposed.
     /// </para>

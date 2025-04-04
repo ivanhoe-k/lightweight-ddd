@@ -22,7 +22,7 @@ namespace LightweightDdd.Core.Virtualization
     ///
     /// <para>
     /// This type uses the <i>Curiously Recurring Template Pattern (CRTP)</i> via the <typeparamref name="TSelf"/> parameter
-    /// to ensure that static factory methods (<see cref="CreateFor"/>, <see cref="Resolve(TProperty?)"/>) return the correct concrete type.
+    /// to ensure that static factory methods (<see cref="Unresolved"/>, <see cref="Resolve(TProperty?)"/>) return the correct concrete type.
     /// </para>
     ///
     /// <para>
@@ -116,7 +116,7 @@ namespace LightweightDdd.Core.Virtualization
         /// <exception cref="InvalidOperationException">
         /// Thrown if a matching non-public constructor is not found. Only private/protected constructors are allowed.
         /// </exception>
-        public static TSelf CreateFor(Expression<Func<TEntity, TProperty>> propertyExp)
+        public static TSelf Unresolved(Expression<Func<TEntity, TProperty>> propertyExp)
         {
             propertyExp.ThrowIfNull();
 
@@ -183,7 +183,7 @@ namespace LightweightDdd.Core.Virtualization
         /// <remarks>
         /// This method is called once per closed generic type (<typeparamref name="TSelf"/>).
         /// It resolves and caches the two required constructors needed to support runtime creation via
-        /// <see cref="CreateFor"/> and <see cref="Resolve"/>:
+        /// <see cref="Unresolved"/> and <see cref="Resolve"/>:
         /// one for expression-based initialization and one for direct value-based resolution.
         /// <para>
         /// Only non-public constructors (private or protected) are allowed.

@@ -16,7 +16,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         {
             // Arrange
             var expected = 42;
-            var property = VirtualDummyProperty<int>.CreateFor(x => x.Age);
+            var property = VirtualDummyProperty<int>.Unresolved(x => x.Age);
 
             // Act
             var resolved = property.Resolve(expected);
@@ -29,7 +29,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void CustomNullableVirtualProperty_ShouldReturnNull_WhenResolvedWithNull()
         {
             // Arrange
-            var property = NullableVirtualDummyProperty<string>.CreateFor(x => x.OptionalName);
+            var property = NullableVirtualDummyProperty<string>.Unresolved(x => x.OptionalName);
 
             // Act
             var resolved = property.Resolve(null);
@@ -43,7 +43,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         {
             // Arrange
             var expected = "optional";
-            var property = NullableVirtualDummyProperty<string>.CreateFor(x => x.OptionalName);
+            var property = NullableVirtualDummyProperty<string>.Unresolved(x => x.OptionalName);
 
             // Act
             var resolved = property.Resolve(expected);
@@ -56,7 +56,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void CustomVirtualProperty_ShouldThrow_WhenResolvedWithNull()
         {
             // Arrange
-            var property = VirtualDummyProperty<string>.CreateFor(x => x.Name);
+            var property = VirtualDummyProperty<string>.Unresolved(x => x.Name);
 
             // Act
             Action act = () => property.Resolve(null!);
@@ -70,7 +70,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void CustomVirtualProperty_ShouldFail_WhenConstructorsArePublic()
         {
             // Act
-            Action act = () => InvalidVirtualDummyProperty.CreateFor(x => x.Age);
+            Action act = () => InvalidVirtualDummyProperty.Unresolved(x => x.Age);
 
             // Assert
             act.Should()
@@ -83,7 +83,7 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         public void CustomVirtualProperty_ShouldFail_WhenConstructorsAreMissing()
         {
             // Act
-            Action act = () => BrokenVirtualDummyProperty<int>.CreateFor(x => x.Age);
+            Action act = () => BrokenVirtualDummyProperty<int>.Unresolved(x => x.Age);
 
             // Assert
             act.Should()
