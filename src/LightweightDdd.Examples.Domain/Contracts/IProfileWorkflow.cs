@@ -1,12 +1,12 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.Results;
 using LightweightDdd.Examples.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using LightweightDdd.Results;
 
 namespace LightweightDdd.Examples.Domain.Contracts
 {
@@ -36,6 +36,6 @@ namespace LightweightDdd.Examples.Domain.Contracts
         /// <summary>
         /// Replaces the gallery images for a given profile by partially hydrating only the fields required for this operation.
         /// </summary>
-        Task<Result<IDomainError, IReadOnlyCollection<Media>>> UpdateGalleryAsync(Guid profileId, IReadOnlyCollection<Media> gallery, CancellationToken cancellationToken);
+        Task<Result<IProfileError, IReadOnlyCollection<Media>>> UpdateGalleryAsync(Guid profileId, IReadOnlyCollection<Media> gallery, CancellationToken cancellationToken);
     }
 }

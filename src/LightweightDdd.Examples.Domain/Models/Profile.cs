@@ -1,13 +1,13 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.DomainModel;
-using LightweightDdd.Events;
+using LightweightDdd.Domain.Entity;
+using LightweightDdd.Domain.Errors;
+using LightweightDdd.Domain.Virtualization;
 using LightweightDdd.Examples.Domain.Errors;
 using LightweightDdd.Examples.Domain.Events.Profile;
 using LightweightDdd.Examples.Domain.Models.Virtualization;
 using LightweightDdd.Results;
-using LightweightDdd.Virtualization;
 using System;
 using System.Collections.Generic;
 
@@ -27,19 +27,19 @@ namespace LightweightDdd.Examples.Domain.Models
                 return Result<IDomainError>.Fail<Profile>(ProfileError.InvalidId());
             }
 
-            return Result<IDomainError>.Ok(new Profile(
+            return Result<IDomainError>.Success(new Profile(
                 id: id,
                 version: version));
         }
 
-        public static Result<IError, VirtualProfile> CreateVirtual(Guid id, long version, VirtualProfileArgs args)
+        public static Result<IDomainError, VirtualProfile> CreateVirtual(Guid id, long version, VirtualProfileArgs args)
         {
             if (id == Guid.Empty)
             {
-                return Result<IError>.Fail<VirtualProfile>(ProfileError.InvalidId());
+                return Result<IDomainError>.Fail<VirtualProfile>(ProfileError.InvalidId());
             }
 
-            return Result<IError>.Ok(new VirtualProfile(id, version, args));
+            return Result<IDomainError>.Success(new VirtualProfile(id, version, args));
         }
 
         public virtual PersonalInfo? PersonalInfo { get; protected set; }
@@ -58,11 +58,11 @@ namespace LightweightDdd.Examples.Domain.Models
 
         public virtual bool IsOnboarded { get; protected set; }
 
-        public Result<IDomainError, Profile> CompleteOnboarding(PersonalInfo personalInfo, Media avatar)
+        public Result<IProfileError, Profile> CompleteOnboarding(PersonalInfo personalInfo, Media avatar)
         {
             if (IsOnboarded)
             {
-                return Result<IDomainError>.Fail<Profile>(ProfileError.AlreadyOnboarded());
+                return Result<IProfileError>.Fail<Profile>(ProfileError.AlreadyOnboarded());
             }
 
             PersonalInfo = personalInfo;
@@ -71,75 +71,75 @@ namespace LightweightDdd.Examples.Domain.Models
 
             AddDomainEvent(ProfileOnboardedDomainEvent.Create(profileId: Id));
 
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
 
-        public Result<IDomainError, Profile> Verify()
+        public Result<IProfileError, Profile> Verify()
         {
             if (Verification == VerificationStatus.Verified)
             {
-                return Result<IDomainError>.Fail<Profile>(ProfileError.AlreadyVerified());
+                return Result<IProfileError>.Fail<Profile>(ProfileError.AlreadyVerified());
             }
 
             Verification = VerificationStatus.Verified;
 
             AddDomainEvent(ProfileVerifiedDomainEvent.Create(profileId: Id));
 
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
 
-        public Result<IDomainError, Profile> UpdateAddress(Address address)
+        public Result<IProfileError, Profile> UpdateAddress(Address address)
         {
             if (address is null)
             {
-                return Result<IDomainError>.Fail<Profile>(ProfileError.InvalidAddress());
+                return Result<IProfileError>.Fail<Profile>(ProfileError.InvalidAddress());
             }
 
             Address = address;
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
 
-        public Result<IDomainError, Profile> UpdatePersonalInfo(PersonalInfo info)
+        public Result<IProfileError, Profile> UpdatePersonalInfo(PersonalInfo info)
         {
             if (info is null)
             {
-                return Result<IDomainError>.Fail<Profile>(ProfileError.InvalidPersonalInfo());
+                return Result<IProfileError>.Fail<Profile>(ProfileError.InvalidPersonalInfo());
             }
 
             PersonalInfo = info;
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
 
-        public Result<IDomainError, Profile> UpdateAvatar(Media? avatar)
+        public Result<IProfileError, Profile> UpdateAvatar(Media? avatar)
         {
             Avatar = avatar;
             AddDomainEvent(ProfileAvatarUpdatedDomainEvent.Create(profileId: Id));
 
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
 
-        public Result<IDomainError, Profile> UpdateBackground(Media? backgroundImage)
+        public Result<IProfileError, Profile> UpdateBackground(Media? backgroundImage)
         {
             BackgroundImage = backgroundImage;
             AddDomainEvent(ProfileBackgroundImageUpdatedDomainEvent.Create(profileId: Id));
 
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
 
-        public Result<IDomainError, Profile> UpdateGallery(IReadOnlyCollection<Media> gallery)
+        public Result<IProfileError, Profile> UpdateGallery(IReadOnlyCollection<Media> gallery)
         {
             if (gallery is null)
             {
-                return Result<IDomainError>.Fail<Profile>(GalleryError.GalleryNotProvided());
+                return Result<IProfileError>.Fail<Profile>(GalleryError.GalleryNotProvided());
             }
 
             if (gallery.Count > Subscription.MaxGalleryImages)
             {
-                return Result<IDomainError>.Fail<Profile>(GalleryError.ExceedsImageLimit());
+                return Result<IProfileError>.Fail<Profile>(GalleryError.ExceedsImageLimit());
             }
 
             Gallery = gallery;
-            return Result<IDomainError>.Ok(this);
+            return Result<IProfileError>.Success(this);
         }
     }
 

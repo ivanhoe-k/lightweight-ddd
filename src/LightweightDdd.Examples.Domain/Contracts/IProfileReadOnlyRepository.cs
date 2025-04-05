@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.Results;
 using LightweightDdd.Examples.Domain.Models.Virtualization;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using LightweightDdd.Results;
 
 namespace LightweightDdd.Examples.Domain.Contracts
 {
@@ -21,7 +21,7 @@ namespace LightweightDdd.Examples.Domain.Contracts
         /// Resolves a profile for gallery update by partially hydrating only the fields required for this operation.
         /// This avoids loading the full aggregate, enabling more efficient data access and bounded business logic.
         /// </summary>
-        Task<Result<IDomainError, VirtualProfile>> ResolveForGalleryUpdateAsync(
+        Task<Result<IProfileError, VirtualProfile>> ResolveForGalleryUpdateAsync(
             Guid profileId,
             CancellationToken cancellationToken);
     }

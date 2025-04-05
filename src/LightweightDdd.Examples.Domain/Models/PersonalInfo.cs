@@ -24,24 +24,24 @@ namespace LightweightDdd.Examples.Domain.Models
 
         public string? Bio { get; }
 
-        public static Result<IDomainError, PersonalInfo> Create(string firstName, string lastName, int age, string? bio)
+        public static Result<IProfileError, PersonalInfo> Create(string firstName, string lastName, int age, string? bio)
         {
             if (string.IsNullOrWhiteSpace(firstName))
             {
-                return Result<IDomainError>.Fail<PersonalInfo>(PersonalInfoError.MissingFirstName());
+                return Result<IProfileError>.Fail<PersonalInfo>(PersonalInfoError.MissingFirstName());
             }
 
             if (string.IsNullOrWhiteSpace(lastName))
             {
-                return Result<IDomainError>.Fail<PersonalInfo>(PersonalInfoError.MissingLastName());
+                return Result<IProfileError>.Fail<PersonalInfo>(PersonalInfoError.MissingLastName());
             }
 
             if (age is < 0 or > 150)
             {
-                return Result<IDomainError>.Fail<PersonalInfo>(PersonalInfoError.InvalidAge());
+                return Result<IProfileError>.Fail<PersonalInfo>(PersonalInfoError.InvalidAge());
             }
 
-            return Result<IDomainError>.Ok(new PersonalInfo(
+            return Result<IProfileError>.Success(new PersonalInfo(
                 firstName: firstName.Trim(),
                 lastName: lastName.Trim(),
                 age: age,

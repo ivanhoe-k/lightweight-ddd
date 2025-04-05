@@ -22,29 +22,29 @@ namespace LightweightDdd.Examples.Domain.Models
 
         public string MimeType { get; }
 
-        public static Result<IDomainError, Media> Create(string url, string fileName, string mimeType)
+        public static Result<IProfileError, Media> Create(string url, string fileName, string mimeType)
         {
             if (string.IsNullOrWhiteSpace(url))
             {
-                return Result<IDomainError>.Fail<Media>(MediaError.MissingUrl());
+                return Result<IProfileError>.Fail<Media>(MediaError.MissingUrl());
             }
 
             if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
-                return Result<IDomainError>.Fail<Media>(MediaError.InvalidUrl());
+                return Result<IProfileError>.Fail<Media>(MediaError.InvalidUrl());
             }
 
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                return Result<IDomainError>.Fail<Media>(MediaError.MissingFileName());
+                return Result<IProfileError>.Fail<Media>(MediaError.MissingFileName());
             }
 
             if (string.IsNullOrWhiteSpace(mimeType))
             {
-                return Result<IDomainError>.Fail<Media>(MediaError.MissingMimeType());
+                return Result<IProfileError>.Fail<Media>(MediaError.MissingMimeType());
             }
 
-            return Result<IDomainError>.Ok(new Media(
+            return Result<IProfileError>.Success(new Media(
                 url: url.Trim(),
                 fileName: fileName.Trim(),
                 mimeType: mimeType.Trim()));

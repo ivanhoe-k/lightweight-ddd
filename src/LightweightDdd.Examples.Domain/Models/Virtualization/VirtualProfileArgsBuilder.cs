@@ -1,8 +1,8 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
+using LightweightDdd.Domain.Virtualization;
 using LightweightDdd.Examples.Domain.Models;
-using LightweightDdd.Virtualization;
 using System.Collections.Generic;
 
 namespace LightweightDdd.Examples.Domain.Models.Virtualization

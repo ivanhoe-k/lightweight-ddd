@@ -26,7 +26,7 @@ namespace LightweightDdd.Examples.Domain.Contracts
         /// Updates the gallery for a given profile in the storage layer.
         /// The full domain logic should already have been validated before calling this method.
         /// </summary>
-        Task<Result<IDomainError>> UpdateGalleryAsync(
+        Task<Result<IProfileError>> UpdateGalleryAsync(
             Profile profile,
             CancellationToken cancellationToken);
     }

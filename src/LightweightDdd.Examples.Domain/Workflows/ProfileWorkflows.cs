@@ -58,7 +58,7 @@ namespace LightweightDdd.Examples.Domain.Workflows
         /// - Aggregate mutation through domain methods
         /// - Persisting changes using the write-only repository
         /// </summary>
-        public async Task<Result<IDomainError, IReadOnlyCollection<Media>>> UpdateGalleryAsync(
+        public async Task<Result<IProfileError, IReadOnlyCollection<Media>>> UpdateGalleryAsync(
             Guid profileId,
             IReadOnlyCollection<Media> newGallery,
             CancellationToken cancellationToken)
@@ -72,7 +72,7 @@ namespace LightweightDdd.Examples.Domain.Workflows
 
             if (resolveResult.Failed)
             {
-                return Result<IDomainError>.Fail<IReadOnlyCollection<Media>>(resolveResult.Error!);
+                return Result<IProfileError>.Fail<IReadOnlyCollection<Media>>(resolveResult.Error!);
             }
 
             var virtualProfile = resolveResult.Value;
@@ -80,17 +80,17 @@ namespace LightweightDdd.Examples.Domain.Workflows
 
             if (updateResult.Failed)
             {
-                return Result<IDomainError>.Fail<IReadOnlyCollection<Media>>(resolveResult.Error!);
+                return Result<IProfileError>.Fail<IReadOnlyCollection<Media>>(resolveResult.Error!);
             }
 
             var writeResult = await _writeOnlyRepository.UpdateGalleryAsync(virtualProfile, cancellationToken);
 
             if (writeResult.Failed)
             {
-                return Result<IDomainError>.Fail<IReadOnlyCollection<Media>>(writeResult.Error!);
+                return Result<IProfileError>.Fail<IReadOnlyCollection<Media>>(writeResult.Error!);
             }
 
-            return Result<IDomainError>.Ok(virtualProfile.Gallery);
+            return Result<IProfileError>.Success(virtualProfile.Gallery);
         }
     }
 }

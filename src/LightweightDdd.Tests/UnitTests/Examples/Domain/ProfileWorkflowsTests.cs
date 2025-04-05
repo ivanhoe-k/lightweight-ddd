@@ -41,10 +41,10 @@ namespace LightweightDdd.Tests.UnitTests.Examples.Domain
             var logger = new Mock<ILogger<ProfileWorkflows>>();
 
             readRepo.Setup(r => r.ResolveForGalleryUpdateAsync(profileId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IDomainError>.Ok(virtualProfile));
+                .ReturnsAsync(Result<IProfileError>.Success(virtualProfile));
 
             writeRepo.Setup(r => r.UpdateGalleryAsync(It.IsAny<Profile>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<IDomainError>.Ok());
+                .ReturnsAsync(Result<IProfileError>.Success());
 
             var workflow = new ProfileWorkflows(logger.Object, readRepo.Object, writeRepo.Object);
 

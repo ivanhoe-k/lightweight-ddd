@@ -3,9 +3,9 @@
 
 using FluentAssertions;
 using LightweightDdd.Extensions;
-using LightweightDdd.Virtualization.Exceptions;
 using LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers;
 using System.Reflection;
+using LightweightDdd.Domain.Virtualization.Exceptions;
 
 namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
 {

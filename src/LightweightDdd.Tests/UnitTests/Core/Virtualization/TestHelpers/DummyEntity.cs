@@ -1,7 +1,7 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.DomainModel;
+using LightweightDdd.Domain.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
 {
-    public sealed class DummyEntity : DomainEntity<Guid>
+    internal sealed class DummyEntity : DomainEntity<Guid>
     {
         public DummyEntity(Guid id) : base(id) { }
 

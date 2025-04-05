@@ -1,12 +1,12 @@
 ﻿// Copyright (c) 2025 Ivan Krepyshev
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
 
-using LightweightDdd.Virtualization;
+using LightweightDdd.Domain.Virtualization;
 using System.Linq.Expressions;
 
 namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
 {
-    public sealed record InvalidVirtualDummyProperty
+    internal sealed record InvalidVirtualDummyProperty
         : VirtualProperty<DummyEntity, int, InvalidVirtualDummyProperty>
     {
         // This will break the framework at runtime

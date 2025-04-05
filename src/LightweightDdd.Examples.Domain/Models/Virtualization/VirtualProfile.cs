@@ -5,7 +5,7 @@ using LightweightDdd.Examples.Domain.Models;
 using LightweightDdd.Extensions;
 using System;
 using System.Collections.Generic;
-using LightweightDdd.Virtualization;
+using LightweightDdd.Domain.Virtualization;
 
 namespace LightweightDdd.Examples.Domain.Models.Virtualization
 {

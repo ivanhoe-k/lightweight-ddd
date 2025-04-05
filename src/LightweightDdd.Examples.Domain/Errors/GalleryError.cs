@@ -15,10 +15,10 @@ namespace LightweightDdd.Examples.Domain.Errors
         {
         }
 
-        public static IDomainError GalleryNotProvided() =>
+        public static IProfileError GalleryNotProvided() =>
             new GalleryError(GalleryErrorCode.GalleryNotProvided);
 
-        public static IDomainError ExceedsImageLimit() =>
+        public static IProfileError ExceedsImageLimit() =>
             new GalleryError(GalleryErrorCode.ExceedsImageLimit);
     }
 }

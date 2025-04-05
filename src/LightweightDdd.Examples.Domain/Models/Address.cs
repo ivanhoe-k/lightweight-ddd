@@ -24,29 +24,29 @@ namespace LightweightDdd.Examples.Domain.Models
 
         public string PostalCode { get; }
 
-        public static Result<IDomainError, Address> Create(string street, string city, string country, string postalCode)
+        public static Result<IProfileError, Address> Create(string street, string city, string country, string postalCode)
         {
             if (string.IsNullOrWhiteSpace(street))
             {
-                return Result<IDomainError>.Fail<Address>(AddressError.MissingStreet());
+                return Result<IProfileError>.Fail<Address>(AddressError.MissingStreet());
             }
 
             if (string.IsNullOrWhiteSpace(city))
             {
-                return Result<IDomainError>.Fail<Address>(AddressError.MissingCity());
+                return Result<IProfileError>.Fail<Address>(AddressError.MissingCity());
             }
 
             if (string.IsNullOrWhiteSpace(country))
             {
-                return Result<IDomainError>.Fail<Address>(AddressError.MissingCountry());
+                return Result<IProfileError>.Fail<Address>(AddressError.MissingCountry());
             }
 
             if (string.IsNullOrWhiteSpace(postalCode))
             {
-                return Result<IDomainError>.Fail<Address>(AddressError.MissingPostalCode());
+                return Result<IProfileError>.Fail<Address>(AddressError.MissingPostalCode());
             }
 
-            return Result<IDomainError>.Ok(new Address(
+            return Result<IProfileError>.Success(new Address(
                 street: street.Trim(),
                 city: city.Trim(),
                 country: country.Trim(),
