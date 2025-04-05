@@ -4,6 +4,7 @@
 namespace LightweightDdd.Results
 {
     public interface IResult<out TError>
+        where TError : notnull
     {
         /// <summary>
         /// Gets the error associated with the result, if any.
@@ -22,6 +23,7 @@ namespace LightweightDdd.Results
     }
 
     public interface IResult<out TError, out TValue> : IResult<TError>
+        where TError : notnull
     {
         /// <summary>
         /// Gets the value associated with the result, if any.
