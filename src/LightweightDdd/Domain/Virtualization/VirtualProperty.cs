@@ -64,13 +64,6 @@ namespace LightweightDdd.Domain.Virtualization
         }
 
         /// <summary>
-        /// Returns the resolved non-null value of the virtual property.
-        /// </summary>
-        /// <returns>The resolved <typeparamref name="TProperty"/> value.</returns>
-        /// <exception cref="VirtualPropertyAccessException">Thrown if the property is not resolved.</exception>
-        public TProperty GetValueOrThrow() => InternalGetValueOrThrow()!;
-
-        /// <summary>
         /// Validates that the resolved value is not <c>null</c>.
         /// This implementation enforces the non-nullability contract of <see cref="VirtualProperty{TEntity, TProperty, TSelf}"/>.
         /// If <c>null</c> is passed, a <see cref="VirtualPropertyValueException"/> is thrown with contextual information.
@@ -79,7 +72,7 @@ namespace LightweightDdd.Domain.Virtualization
         /// <exception cref="VirtualPropertyValueException">
         /// Thrown when <paramref name="value"/> is <c>null</c>, as this virtual property does not allow null values.
         /// </exception>
-        protected override void ValidateResolvedValue(TProperty? value)
+        protected override void ValidateResolvedValue(TProperty value)
         {
             if (value is not null)
             {

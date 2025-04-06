@@ -162,7 +162,7 @@ namespace LightweightDdd.Domain.Virtualization
         /// </remarks>
         /// <param name="value">The value to resolve this property with.</param>
         /// <returns>A new resolved instance of <typeparamref name="TSelf"/>.</returns>
-        public TSelf Resolve(TProperty? value)
+        public TSelf Resolve(TProperty value)
         {
             ValidateResolvedValue(value);
 
@@ -174,21 +174,23 @@ namespace LightweightDdd.Domain.Virtualization
         /// Must be overridden in subclasses to implement validation.
         /// </summary>
         /// <param name="value">The value to validate.</param>
-        protected abstract void ValidateResolvedValue(TProperty? value);
+        protected abstract void ValidateResolvedValue(TProperty value);
 
         /// <summary>
-        /// Gets the current value of the property.
+        /// Returns the resolved value of the virtual property.
         /// </summary>
         /// <returns>The resolved value.</returns>
-        /// <exception cref="VirtualPropertyAccessException">Thrown if the property is not resolved.</exception>
-        protected TProperty? InternalGetValueOrThrow()
+        /// <exception cref="VirtualPropertyAccessException">
+        /// Thrown if the property has not been resolved yet.
+        /// </exception>
+        public TProperty GetValueOrThrow()
         {
             if (!_isResolved)
             {
                 throw new VirtualPropertyAccessException(_entityName, _propertyName);
             }
 
-            return _value;
+            return _value!;
         }
 
         /// <summary>
@@ -275,10 +277,10 @@ namespace LightweightDdd.Domain.Virtualization
             {
                 return (TSelf)ctor.Invoke(args);
             }
-            catch (TargetInvocationException ex) when (ex.InnerException is VirtualPropertyException)
+            catch (TargetInvocationException ex) when (ex.InnerException is VirtualPropertyException inner)
             {
                 // Re-throw the actual exception for clearer diagnostics
-                throw ex.InnerException;
+                throw inner;
             }
         }
     }
