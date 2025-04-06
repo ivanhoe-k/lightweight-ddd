@@ -264,24 +264,9 @@ namespace LightweightDdd.Domain.Virtualization
         /// <param name="ctor">The constructor to invoke.</param>
         /// <param name="args">The arguments to pass to the constructor.</param>
         /// <returns>A new instance of <typeparamref name="TSelf"/>.</returns>
-        /// <exception cref="Exception">
-        /// Re-throws any exception thrown by the constructor body directly, unwrapped from <see cref="TargetInvocationException"/>.
-        /// </exception>
-        /// <remarks>
-        /// This method ensures that any exception thrown by the invoked constructor is not wrapped in a
-        /// <see cref="TargetInvocationException"/>, making error handling and unit testing more predictable.
-        /// </remarks>
         private static TSelf InvokeConstructor(ConstructorInfo ctor, object?[] args)
         {
-            try
-            {
-                return (TSelf)ctor.Invoke(args);
-            }
-            catch (TargetInvocationException ex) when (ex.InnerException is VirtualPropertyException inner)
-            {
-                // Re-throw the actual exception for clearer diagnostics
-                throw inner;
-            }
+            return (TSelf)ctor.Invoke(args);
         }
     }
 }
