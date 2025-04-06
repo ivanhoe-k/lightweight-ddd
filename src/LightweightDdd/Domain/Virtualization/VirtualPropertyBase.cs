@@ -65,8 +65,19 @@ namespace LightweightDdd.Domain.Virtualization
         where TSelf : VirtualPropertyBase<TEntity, TProperty, TSelf>
     {
         private static readonly object _initLock = new();
-        private static ConstructorInfo? _expressionCtor;
+
+        /// <summary>
+        /// Cached constructor used when creating unresolved virtual property instances
+        /// with explicit entity and property names (from parsed expressions).
+        /// </summary>
+        private static ConstructorInfo? _unresolvedCtor;
+
+        /// <summary>
+        /// Cached constructor used when creating resolved virtual property instances
+        /// with entity, property, and value provided.
+        /// </summary>
         private static ConstructorInfo? _resolvedCtor;
+
         private static bool _initialized;
 
         private readonly TProperty? _value;
@@ -75,18 +86,23 @@ namespace LightweightDdd.Domain.Virtualization
         private readonly string _entityName;
 
         /// <summary>
-        /// Initializes an unresolved virtual property using a strongly typed expression.
+        /// Initializes an unresolved virtual property using explicit entity and property names.
+        /// Intended for internal or framework-level use where property expression parsing is not needed or available.
         /// </summary>
-        /// <param name="propertyExp">A lambda expression identifying the property being virtualized.</param>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="propertyExp"/> is null.</exception>
-        protected VirtualPropertyBase(Expression<Func<TEntity, TProperty>> propertyExp)
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="entityName"/> or <paramref name="propertyName"/> is <c>null</c> or whitespace.
+        /// </exception>
+        protected VirtualPropertyBase(string entityName, string propertyName)
         {
-            propertyExp.ThrowIfNull();
+            entityName.ThrowIfNullOrWhiteSpace();
+            propertyName.ThrowIfNullOrWhiteSpace();
 
             _value = default;
             _isResolved = false;
-            _propertyName = ExpressionHelper.GetPropertyPath(propertyExp);
-            _entityName = typeof(TEntity).Name;
+            _propertyName = propertyName;
+            _entityName = entityName;
         }
 
         /// <summary>
@@ -131,7 +147,10 @@ namespace LightweightDdd.Domain.Virtualization
 
             EnsureConstructorCacheInitialized();
 
-            return InvokeConstructor(_expressionCtor!, [propertyExp]);
+            var propertyName = ExpressionHelper.GetPropertyPath(propertyExp);
+            var entityName = typeof(TEntity).Name;
+
+            return InvokeConstructor(_unresolvedCtor!, [entityName, propertyName]);
         }
 
         /// <summary>
@@ -202,42 +221,36 @@ namespace LightweightDdd.Domain.Virtualization
                     return;
                 }
 
-                _expressionCtor = GetOrThrowConstructor(
-                    entityType: typeof(TEntity),
+                _unresolvedCtor = GetOrThrowConstructor(
                     propertyType: typeof(TProperty),
                     virtualPropertyType: typeof(TSelf),
-                    isExpressionCtor: true);
+                    isUnresolvedCtor: true);
 
                 _resolvedCtor = GetOrThrowConstructor(
-                    entityType: typeof(TEntity),
                     propertyType: typeof(TProperty),
                     virtualPropertyType: typeof(TSelf),
-                    isExpressionCtor: false);
+                    isUnresolvedCtor: false);
 
                 _initialized = true;
             }
         }
 
         private static ConstructorInfo GetOrThrowConstructor(
-            Type entityType,
             Type propertyType,
             Type virtualPropertyType,
-            bool isExpressionCtor)
+            bool isUnresolvedCtor)
         {
-            var ctor = ReflectionHelper.GetVirtualPropertyConstructorOrThrow(
-                entityType,
-                propertyType,
-                virtualPropertyType,
-                isExpressionCtor,
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            var ctor = ReflectionHelper.GetVirtualPropertyConstructor(
+                propertyType: propertyType,
+                virtualPropertyType: virtualPropertyType,
+                isUnresolvedCtor: isUnresolvedCtor,
+                bindingFlags: BindingFlags.Instance | BindingFlags.NonPublic);
 
             if (ctor is null)
             {
-                var args = isExpressionCtor
-                    ? new[] { ReflectionHelper.GetExpressionConstructorType(entityType, propertyType) }
-                    : ReflectionHelper.GetVirtualPropertyResolvedConstructorTypes(propertyType);
-
-                throw new VirtualPropertyConstructorResolutionException(virtualPropertyType, args);
+                throw new VirtualPropertyConstructorResolutionException(
+                    virtualPropertyType: virtualPropertyType, 
+                    attemptedParams: ReflectionHelper.GetVirtualPropertyConstructorTypes(propertyType, isUnresolvedCtor));
             }
 
             return ctor;
@@ -262,7 +275,7 @@ namespace LightweightDdd.Domain.Virtualization
             {
                 return (TSelf)ctor.Invoke(args);
             }
-            catch (TargetInvocationException ex) when (ex.InnerException is not null)
+            catch (TargetInvocationException ex) when (ex.InnerException is VirtualPropertyException)
             {
                 // Re-throw the actual exception for clearer diagnostics
                 throw ex.InnerException;

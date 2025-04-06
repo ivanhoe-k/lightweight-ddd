@@ -11,13 +11,13 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
         : VirtualProperty<DummyEntity, TProperty, VirtualDummyProperty<TProperty>>
         where TProperty : notnull
     {
-        private VirtualDummyProperty(Expression<Func<DummyEntity, TProperty>> expression)
-            : base(expression) 
+        private VirtualDummyProperty(string entityName, string propertyName)
+            : base(entityName, propertyName) 
         { 
         }
 
-        private VirtualDummyProperty(string entity, string property, TProperty value)
-            : base(entity, property, value) 
+        private VirtualDummyProperty(string entityName, string propertyName, TProperty value)
+            : base(entityName, propertyName, value) 
         { 
         }
     }

@@ -39,22 +39,26 @@ namespace LightweightDdd.Domain.Virtualization
         where TProperty: notnull
     {
         /// <summary>
-        /// Initializes a new unresolved instance of the virtual property using a strongly typed expression.
+        /// Initializes a new unresolved instance of the virtual property using explicit entity and property names.
         /// </summary>
-        /// <param name="propertyExp">The lambda expression representing the property being virtualized.</param>
-        protected VirtualProperty(Expression<Func<TEntity, TProperty>> propertyExp)
-            : base(propertyExp) 
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        protected VirtualProperty(string entityName, string propertyName)
+            : base(entityName, propertyName) 
         { 
         }
 
         /// <summary>
-        /// Initializes a resolved instance of the virtual property with a required value.
+        /// Initializes a resolved instance of the virtual property with a required (non-null) value.
         /// </summary>
-        /// <param name="entity">The name of the owning entity.</param>
-        /// <param name="property">The name of the property.</param>
-        /// <param name="value">The resolved value. Must not be null.</param>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="value"/> is null.</exception>
-        protected VirtualProperty(string entity, string property, TProperty value) : base(entity, property, value) 
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="value">The resolved value to assign. Must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="value"/> is <c>null</c>, as this virtual property does not allow null values.
+        /// </exception>
+        protected VirtualProperty(string entityName, string propertyName, TProperty value)
+            : base(entityName, propertyName, value)
         {
             value.ThrowIfNull();
         }
@@ -117,22 +121,26 @@ namespace LightweightDdd.Domain.Virtualization
         where TProperty : notnull
     {
         /// <summary>
-        /// Private constructor for use by reflection during unresolved factory creation.
+        /// Initializes a new unresolved instance of the virtual property using explicit entity and property names.
         /// </summary>
-        /// <param name="expression">A lambda pointing to the unresolved property.</param>
-        private VirtualProperty(Expression<Func<TEntity, TProperty>> expression)
-            : base(expression)
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        private VirtualProperty(string entityName, string propertyName)
+            : base(entityName, propertyName)
         {
         }
 
         /// <summary>
-        /// Private constructor for use by reflection during resolution with a known value.
+        /// Initializes a resolved instance of the virtual property with a required (non-null) value.
         /// </summary>
-        /// <param name="entity">The owning entity name.</param>
-        /// <param name="property">The property name.</param>
-        /// <param name="value">The non-null resolved value.</param>
-        private VirtualProperty(string entity, string property, TProperty value)
-            : base(entity, property, value)
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="value">The resolved value to assign. Must not be <c>null</c>.</param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="value"/> is <c>null</c>, as this virtual property does not allow null values.
+        /// </exception>
+        private VirtualProperty(string entityName, string propertyName, TProperty value)
+            : base(entityName, propertyName, value)
         {
         }
     }

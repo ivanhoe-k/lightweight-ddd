@@ -9,12 +9,6 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
     internal sealed record InvalidVirtualDummyProperty
         : VirtualProperty<DummyEntity, int, InvalidVirtualDummyProperty>
     {
-        // This will break the framework at runtime
-        public InvalidVirtualDummyProperty(Expression<Func<DummyEntity, int>> expression)
-            : base(expression) 
-        {
-        }
-
         public InvalidVirtualDummyProperty(string entity, string property, int value)
             : base(entity, property, value) 
         {

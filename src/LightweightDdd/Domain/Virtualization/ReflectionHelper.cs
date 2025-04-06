@@ -11,52 +11,52 @@ namespace LightweightDdd.Domain.Virtualization
 {
     internal static class ReflectionHelper
     {
-        public static Type GetExpressionConstructorType(Type entityType, Type propertyType)
+        public static Type[] GetUnresolvedConstructorTypes()
         {
-            entityType.ThrowIfNull();
-            propertyType.ThrowIfNull();
-
-            return typeof(Expression<>).MakeGenericType(
-                typeof(Func<,>).MakeGenericType(entityType, propertyType));
+            return new[] { typeof(string), typeof(string) };
         }
 
-        public static Type[] GetVirtualPropertyResolvedConstructorTypes(Type propertyType)
+        public static Type[] GetResolvedConstructorTypes(Type propertyType)
         {
             propertyType.ThrowIfNull();
 
-            return new[] { typeof(string),  typeof(string),propertyType };
+            return new[] { typeof(string), typeof(string), propertyType };
         }
 
-        public static ConstructorInfo? GetVirtualPropertyConstructorOrThrow(
-            Type entityType,
+        public static Type[] GetVirtualPropertyConstructorTypes(Type propertyType, bool isUnresolvedCtor)
+        {
+            propertyType.ThrowIfNull();
+
+            return isUnresolvedCtor
+                ? GetUnresolvedConstructorTypes()
+                : GetResolvedConstructorTypes(propertyType);
+        }
+
+        public static ConstructorInfo? GetVirtualPropertyConstructor(
             Type propertyType,
             Type virtualPropertyType,
-            bool isExpressionCtor,
+            bool isUnresolvedCtor,
             BindingFlags bindingFlags)
         {
-            virtualPropertyType.ThrowIfNull();
-            entityType.ThrowIfNull();
             propertyType.ThrowIfNull();
+            virtualPropertyType.ThrowIfNull();
 
-            var args = isExpressionCtor
-                ? new[] { GetExpressionConstructorType(entityType, propertyType) }
-                : GetVirtualPropertyResolvedConstructorTypes(propertyType);
-
-            return GetConstructor(virtualPropertyType, args, bindingFlags);
+            return GetConstructor(
+                type: virtualPropertyType,
+                parameterTypes: GetVirtualPropertyConstructorTypes(propertyType, isUnresolvedCtor),
+                bindingFlags: bindingFlags);
         }
 
-        public static ConstructorInfo? GetConstructor(Type type, Type[] parameterTypes, BindingFlags bindingFlags)
+        private static ConstructorInfo? GetConstructor(Type type, Type[] parameterTypes, BindingFlags bindingFlags)
         {
             type.ThrowIfNull();
             parameterTypes.ThrowIfNull();
 
-            var ctor = type.GetConstructor(
-                bindingFlags,
+            return type.GetConstructor(
+                bindingAttr: bindingFlags,
                 binder: null,
                 types: parameterTypes,
                 modifiers: null);
-
-            return ctor;
         }
     }
 }

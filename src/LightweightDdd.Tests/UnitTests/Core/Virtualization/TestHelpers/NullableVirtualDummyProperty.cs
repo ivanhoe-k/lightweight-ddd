@@ -9,13 +9,13 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
     internal sealed record NullableVirtualDummyProperty<TProperty>
         : NullableVirtualProperty<DummyEntity, TProperty, NullableVirtualDummyProperty<TProperty>>
     {
-        private NullableVirtualDummyProperty(Expression<Func<DummyEntity, TProperty?>> expression)
-            : base(expression) 
+        private NullableVirtualDummyProperty(string entityName, string propertyName)
+            : base(entityName, propertyName) 
         { 
         }
 
-        private NullableVirtualDummyProperty(string entity, string property, TProperty? value)
-            : base(entity, property, value) 
+        private NullableVirtualDummyProperty(string entityName, string propertyName, TProperty? value)
+            : base(entityName, propertyName, value) 
         {
         }
     }

@@ -17,7 +17,7 @@ namespace LightweightDdd.Domain.Virtualization.Exceptions
     /// This typically occurs when the derived virtual property class does not define a matching private or protected constructor
     /// required for reflection-based instantiation. Ensure your leaf virtual property defines both required constructors.
     /// </remarks>
-    public sealed class VirtualPropertyConstructorResolutionException : InvalidOperationException
+    public sealed class VirtualPropertyConstructorResolutionException : VirtualPropertyException
     {
         /// <summary>
         /// Gets the type of the virtual property for which constructor resolution failed.
@@ -35,12 +35,12 @@ namespace LightweightDdd.Domain.Virtualization.Exceptions
         /// <param name="virtualPropertyType">The CLR type of the virtual property that failed constructor resolution.</param>
         /// <param name="attemptedParams">The constructor parameter signature that was searched for.</param>
         public VirtualPropertyConstructorResolutionException(Type virtualPropertyType, Type[] attemptedParams)
-            : base($"Could not resolve a valid constructor for type '{virtualPropertyType.FullName}'. " +
-                   $"Expected constructor with parameters: ({string.Join(", ", attemptedParams.Select(t => t.Name))}).")
+            : base(virtualPropertyType.Name, "n/a", // fallback; no concrete property involved here
+                $"Could not resolve a valid constructor for type '{virtualPropertyType.FullName}'. " +
+                $"Expected constructor with parameters: ({string.Join(", ", attemptedParams.Select(t => t.Name))}).")
         {
             VirtualPropertyType = virtualPropertyType;
             AttemptedParameterTypes = attemptedParams;
         }
     }
-
 }

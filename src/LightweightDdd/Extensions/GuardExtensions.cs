@@ -98,7 +98,7 @@ namespace LightweightDdd.Extensions
         /// </summary>
         /// <param name="argument">The object to which the condition applies.</param>
         /// <param name="condition">The condition that, if true, triggers the exception.</param>
-        /// <param name="errorMessage">The error message to include in the exception.</param>
+        /// <param name="message">The error message to include in the exception.</param>
         /// <param name="paramName">The name of the parameter being checked (automatically inferred).</param>
         public static void ThrowIf(
             this object argument,

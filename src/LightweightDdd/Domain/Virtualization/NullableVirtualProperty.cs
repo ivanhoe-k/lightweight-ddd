@@ -38,22 +38,23 @@ namespace LightweightDdd.Domain.Virtualization
          where TSelf : NullableVirtualProperty<TEntity, TProperty, TSelf>
     {
         /// <summary>
-        /// Initializes a new unresolved instance of the virtual property using a strongly typed expression.
+        /// Initializes a new unresolved instance of the virtual property using explicit entity and property names.
         /// </summary>
-        /// <param name="propertyExp">The lambda expression representing the property being virtualized.</param>
-        protected NullableVirtualProperty(Expression<Func<TEntity, TProperty?>> propertyExp) 
-            : base(propertyExp) 
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        protected NullableVirtualProperty(string entityName, string propertyName) 
+            : base(entityName, propertyName) 
         { 
         }
 
         /// <summary>
         /// Initializes a resolved instance of the virtual property with a nullable value.
         /// </summary>
-        /// <param name="entity">The name of the owning entity.</param>
-        /// <param name="property">The name of the property.</param>
-        /// <param name="value">The resolved value. May be null.</param>
-        protected NullableVirtualProperty(string entity, string property, TProperty? value) 
-            : base(entity, property, value)
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="value">The resolved value to assign. May be <c>null</c>.</param>
+        protected NullableVirtualProperty(string entityName, string propertyName, TProperty? value) 
+            : base(entityName, propertyName, value)
         { 
         }
 
@@ -103,22 +104,23 @@ namespace LightweightDdd.Domain.Virtualization
         where TEntity : IDomainEntity
     {
         /// <summary>
-        /// Private constructor for use by reflection during unresolved factory creation.
+        /// Initializes a new unresolved instance of the virtual property using explicit entity and property names.
         /// </summary>
-        /// <param name="expression">A lambda pointing to the unresolved property.</param>
-        private NullableVirtualProperty(Expression<Func<TEntity, TProperty?>> expression) 
-            : base(expression) 
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        private NullableVirtualProperty(string entityName, string propertyName) 
+            : base(entityName, propertyName) 
         {
         }
 
         /// <summary>
-        /// Private constructor for use by reflection during resolution with a known value.
+        /// Initializes a resolved instance of the virtual property with a nullable value.
         /// </summary>
-        /// <param name="entity">The owning entity name.</param>
-        /// <param name="property">The property name.</param>
-        /// <param name="value">The nullable resolved value.</param>
-        private NullableVirtualProperty(string entity, string property, TProperty? value) 
-            : base(entity, property, value) 
+        /// <param name="entityName">The name of the entity that owns the virtual property.</param>
+        /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="value">The resolved value to assign. May be <c>null</c>.</param>
+        private NullableVirtualProperty(string entityName, string propertyName, TProperty? value) 
+            : base(entityName, propertyName, value) 
         {
         }
     }
