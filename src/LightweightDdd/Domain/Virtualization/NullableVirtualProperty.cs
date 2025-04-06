@@ -63,6 +63,17 @@ namespace LightweightDdd.Domain.Virtualization
         /// <returns>The resolved value or null.</returns>
         /// <exception cref="VirtualPropertyAccessException">Thrown if the property is not resolved.</exception>
         public TProperty? GetValueOrThrow() => InternalGetValueOrThrow();
+
+        /// <summary>
+        /// Overrides the value validation hook to allow <c>null</c> values during resolution.
+        /// This implementation represents a virtual property that explicitly permits <c>null</c>,
+        /// in contrast to <see cref="VirtualProperty{TEntity, TProperty, TSelf}"/>, which enforces non-nullability.
+        /// </summary>
+        /// <param name="value">The value to validate during resolution. <c>null</c> is allowed.</param>
+        protected override void ValidateResolvedValue(TProperty? value)
+        {
+            return;
+        }
     }
 
     /// <summary>

@@ -40,6 +40,31 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         }
 
         [Fact]
+        public void VirtualProperty_ShouldThrow_WhenResolvedWithNull()
+        {
+            // Arrange
+            var property = VirtualProperty<DummyEntity, string>.Unresolved(x => x.Name);
+
+            // Act
+            Action act = () => property.Resolve(null!);
+
+            // Assert
+            act.Should().Throw<VirtualPropertyValueException>()
+                .WithMessage($"Null value is not allowed for virtual property '{property.PropertyName}' on entity '{property.EntityName}'.");
+        }
+
+        [Fact]
+        public void VirtualProperty_ShouldExposeCorrectEntityAndPropertyName()
+        {
+            // Arrange - Act
+            var virtualProperty = VirtualProperty<DummyEntity, string>.Unresolved(x => x.Name);
+
+            // Assert
+            virtualProperty.EntityName.Should().Be(nameof(DummyEntity));
+            virtualProperty.PropertyName.Should().Be(nameof(DummyEntity.Name));
+        }
+
+        [Fact]
         public void NullableVirtualProperty_ShouldThrow_WhenAccessedUnresolved()
         {
             // Arrange

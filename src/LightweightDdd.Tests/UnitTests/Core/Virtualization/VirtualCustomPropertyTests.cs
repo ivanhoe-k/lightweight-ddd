@@ -62,8 +62,8 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
             Action act = () => property.Resolve(null!);
 
             // Assert
-            act.Should().Throw<ArgumentNullException>()
-                .WithParameterName("value");
+            act.Should().Throw<VirtualPropertyValueException>()
+                .WithMessage($"Null value is not allowed for virtual property '{property.PropertyName}' on entity '{property.EntityName}'.");
         }
 
         [Fact]

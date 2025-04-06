@@ -21,9 +21,9 @@ namespace LightweightDdd.Domain.Virtualization.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="VirtualPropertyAccessException"/> class.
         /// </summary>
-        /// <param name="propertyName">The unresolved property name.</param>
         /// <param name="entityName">The name of the owning virtual entity.</param>
-        public VirtualPropertyAccessException(string propertyName, string entityName)
+        /// <param name="propertyName">The unresolved property name.</param>
+        public VirtualPropertyAccessException(string entityName, string propertyName)
             : base(entityName, propertyName, $"Property '{propertyName}' on virtual entity '{entityName}' was not resolved.")
         {
         }

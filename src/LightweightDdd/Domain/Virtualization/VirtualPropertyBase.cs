@@ -71,8 +71,8 @@ namespace LightweightDdd.Domain.Virtualization
 
         private readonly TProperty? _value;
         private readonly bool _isResolved;
-        private readonly string _property;
-        private readonly string _entity;
+        private readonly string _propertyName;
+        private readonly string _entityName;
 
         /// <summary>
         /// Initializes an unresolved virtual property using a strongly typed expression.
@@ -85,27 +85,37 @@ namespace LightweightDdd.Domain.Virtualization
 
             _value = default;
             _isResolved = false;
-            _property = ExpressionHelper.GetPropertyPath(propertyExp);
-            _entity = typeof(TEntity).Name;
+            _propertyName = ExpressionHelper.GetPropertyPath(propertyExp);
+            _entityName = typeof(TEntity).Name;
         }
 
         /// <summary>
         /// Initializes a resolved virtual property with a concrete value.
         /// </summary>
-        /// <param name="entity">The name of the owning entity.</param>
-        /// <param name="property">The name of the virtual property.</param>
+        /// <param name="entityName">The name of the owning entity.</param>
+        /// <param name="propertyName">The name of the virtual property.</param>
         /// <param name="value">The resolved value.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="entity"/> or <paramref name="property"/> is null or whitespace.</exception>
-        protected VirtualPropertyBase(string entity, string property, TProperty? value)
+        /// <exception cref="ArgumentException">Thrown if <paramref name="entityName"/> or <paramref name="propertyName"/> is null or whitespace.</exception>
+        protected VirtualPropertyBase(string entityName, string propertyName, TProperty? value)
         {
-            entity.ThrowIfNullOrWhiteSpace();
-            property.ThrowIfNullOrWhiteSpace();
+            entityName.ThrowIfNullOrWhiteSpace();
+            propertyName.ThrowIfNullOrWhiteSpace();
 
-            _entity = entity;
-            _property = property;
+            _entityName = entityName;
+            _propertyName = propertyName;
             _isResolved = true;
             _value = value;
         }
+
+        /// <summary>
+        /// Gets the name of the property being virtualized (i.e., the property represented by this virtual instance).
+        /// </summary>
+        public string PropertyName => _propertyName;
+
+        /// <summary>
+        /// Gets the name of the entity type that owns the virtualized property.
+        /// </summary>
+        public string EntityName => _entityName;
 
         /// <summary>
         /// Creates a new unresolved virtual property of type <typeparamref name="TSelf"/>.
@@ -121,7 +131,7 @@ namespace LightweightDdd.Domain.Virtualization
 
             EnsureConstructorCacheInitialized();
 
-            return InvokeConstructor(_expressionCtor!, new object[] { propertyExp });
+            return InvokeConstructor(_expressionCtor!, [propertyExp]);
         }
 
         /// <summary>
@@ -135,42 +145,28 @@ namespace LightweightDdd.Domain.Virtualization
         /// <returns>A new resolved instance of <typeparamref name="TSelf"/>.</returns>
         public TSelf Resolve(TProperty? value)
         {
-            EnsureConstructorCacheInitialized();
+            ValidateResolvedValue(value);
 
-            return InvokeConstructor(_resolvedCtor!, new object[] { _entity, _property, value });
+            return InvokeConstructor(_resolvedCtor!, [_entityName, _propertyName, value]);
         }
 
         /// <summary>
-        /// Gets the current value of the property, even if it is null.
+        /// Hook method for subclasses to validate or enforce constraints on the resolved value.
+        /// Must be overridden in subclasses to implement validation.
         /// </summary>
-        /// <returns>The resolved value, or null.</returns>
+        /// <param name="value">The value to validate.</param>
+        protected abstract void ValidateResolvedValue(TProperty? value);
+
+        /// <summary>
+        /// Gets the current value of the property.
+        /// </summary>
+        /// <returns>The resolved value.</returns>
         /// <exception cref="VirtualPropertyAccessException">Thrown if the property is not resolved.</exception>
         protected TProperty? InternalGetValueOrThrow()
         {
             if (!_isResolved)
             {
-                throw new VirtualPropertyAccessException(_property, _entity);
-            }
-
-            return _value;
-        }
-
-        /// <summary>
-        /// Gets the current value of the property, assuming it is non-null.
-        /// </summary>
-        /// <returns>The resolved, non-null value of the property.</returns>
-        /// <exception cref="VirtualPropertyAccessException">Thrown if the property is not resolved.</exception>
-        /// <exception cref="InvalidOperationException">Thrown if the resolved value is null.</exception>
-        protected TProperty InternalGetRequiredValueOrThrow()
-        {
-            if (!_isResolved)
-            {
-                throw new VirtualPropertyAccessException(_property, _entity);
-            }
-
-            if (_value is null)
-            {
-                throw new InvalidOperationException($"Property '{_property}' on entity '{_entity}' was resolved but contains a null value.");
+                throw new VirtualPropertyAccessException(_entityName, _propertyName);
             }
 
             return _value;
