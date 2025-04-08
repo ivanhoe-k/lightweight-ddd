@@ -35,25 +35,32 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 
 ## 📁 Structure
 
-### `LightweightDdd`
-| Folder            | Description                                               |
-|-------------------|-----------------------------------------------------------|
-| `DomainModel`     | Base abstractions for aggregates and entities             |
-| `Events`          | Domain event contracts and helper types                   |
-| `Results`         | Functional-style result modeling (`Result<T>`, `IError`)  |
-| `Virtualization`  | Virtual entity pattern core (e.g. `VirtualProperty<T>`)   |
-| `Extensions`      | Guard clauses and other domain-safe utilities             |
-| `Repositories`    | Domain-level repository contracts                         |
-| `Utilities`       | Shared low-level helpers                                  |
+### `LightweightDdd`  
+| Folder                         | Description                                                        |
+|-------------------------------|--------------------------------------------------------------------|
+| `Domain/Entity`               | Base abstractions for aggregates and domain entities               |
+| `Domain/Errors`               | Domain-specific error definitions and codes                        |
+| `Domain/Events`               | Contracts and helpers for domain event dispatching                 |
+| `Domain/Repositories`         | Repository interfaces for persistence                              |
+| `Domain/Virtualization`       | Virtual Entity Pattern core (hydration, mutation, tracking, etc.)  |
+| `Extensions`                  | Guard clauses and expressive domain-safe extensions                |
+| `Results`                     | Functional result modeling: `Result<T>`, `Result<TError, TValue>`  |
 
-### `LightweightDdd.Examples.Domain`
+### `LightweightDdd.Examples.Domain`  
 | Folder         | Description                                                       |
 |----------------|-------------------------------------------------------------------|
-| `Models`       | Realistic aggregates and value objects (e.g. `Profile`, `Media`)  |
-| `Errors`       | Domain errors and error code enums                                |
-| `Events`       | Domain events emitted by aggregates                               |
-| `Contracts`    | Domain-level ports such as repositories and services              |
-| `Workflows`    | Domain workflows (orchestrators) coordinating domain operations   |
+| `Contracts`    | Repository and service abstractions used by the domain            |
+| `Errors`       | Domain-specific error types and enums                             |
+| `Events`       | Events triggered by aggregates (e.g., `ProfileOnboarded`)         |
+| `Models`       | Aggregates and value objects (e.g., `Profile`, `Media`)           |
+| `Workflows`    | Domain workflows coordinating logic (e.g., `ProfileWorkflows.cs`) |
+
+### `LightweightDdd.Tests`  
+| Folder                          | Description                                                            |
+|----------------------------------|------------------------------------------------------------------------|
+| `UnitTests/Core/Results`         | Tests for functional result behavior and error flows                   |
+| `UnitTests/Core/Virtualization`  | Tests for virtual property lifecycle: hydration, mutation, access      |
+| `UnitTests/Examples/Domain`      | Tests for the example domain logic and workflows                       |
 
 ---
 
@@ -61,47 +68,36 @@ I don’t expect these patterns to be reused as-is. Instead, I hope they give yo
 
 - ✅ `DomainEntity<TKey>` and `VersionedDomainEntity<TKey>`
 - ✅ `IDomainEvent`, `IDomainEntity`, and domain event dispatching contracts
-- ✅ `Result<T>`, `IError` for explicit control flow and structured errors
-- ✅ Virtual Entity Pattern for safe partial hydration of aggregates  
-  (includes `VirtualPropertyBase<TEntity, TProperty, TSelf>`, `VirtualProperty<TEntity, TProperty, TSelf>`, `NullableVirtualProperty<TEntity, TProperty, TSelf>`, and their sealed variants `VirtualProperty<TEntity, TProperty>` and `NullableVirtualProperty<TEntity, TProperty>`.)
+- ✅ `Result<TError, TValue>` and `Result<TError>` for explicit control flow and structured errors
+- ✅ Virtual Entity Pattern — safe partial hydration and fine-grained change tracking  
+  Includes:
+  - `VirtualPropertyBase<TEntity, TProperty, TSelf>`
+  - Sealed variants: `VirtualProperty<TEntity, TProperty>`, `NullableVirtualProperty<TEntity, TProperty>`
+  - Internal-only `IResolvable` interface for safe builder-only hydration
+  - Explicit domain mutation via `Update(...)`
+  - Flags: `HasResolved`, `HasChanged` for lifecycle control
+  - Typed argument containers and builders (`VirtualArgs`, `VirtualArgsBuilderBase`)
 - ✅ Guard extensions for expressive null/default checks
 - ✅ Domain-level workflows for orchestrating domain logic in a consistent and technology-agnostic way
 - ✅ Read/Write repository split to encourage logical CQRS boundaries in the domain layer
 
-> More will be added and refined over time.
-
 ---
 
-## 📁 Structure
-
-| Folder            | Description                                     |
-|-------------------|-------------------------------------------------|
-| `DomainModel`     | Core domain entity abstractions                 |
-| `Events`          | Domain events and effects                       |
-| `Results`         | Functional-style result modeling (`Result<T>`, `IError`) |
-| `Virtualization`  | Tactical pattern for partial entity hydration   |
-| `Extensions`      | Guard clauses and helper utilities              |
-
----
-
-## 🧪 Example Use Case: Profile + Virtual Entity Pattern
+## 📅 Example Use Case: Profile + Virtual Entity Pattern
 
 The `LightweightDdd.Examples` project includes a working `Profile` aggregate that demonstrates:
 
 - Immutable Value Objects (`Address`, `PersonalInfo`, `Media`)
 - Versioned aggregate with domain events (`ProfileOnboarded`, `AvatarUpdated`, etc.)
-- Business rules expressed via methods returning `Result<IDomainError>`
+- Business rules expressed via methods returning `Result<DomainError>`
 - Support for partial hydration through `VirtualProfile`
 - Guarded property access with `VirtualProperty<T>`, throwing on unresolved fields
 - Fluent args builder (`VirtualProfileArgsBuilder`) for type-safe resolution
+- Support for detecting mutations without full entity tracking (`HasChanged`)
 
 This example shows how to avoid over-fetching, prevent silent logic errors, and still maintain rich domain behavior — even when dealing with partial state.
 
-🔧 This is still a work in progress. The example will grow as more patterns and workflows are added.
-
 ### 🔄 Hypothetical Usage
-
-Even without a repository yet, here's what a potential usage of `VirtualProfile` might look like in a domain-specific scenario:
 
 ```csharp
 // Simulate a projection for a business case: verifying a profile
@@ -133,8 +129,8 @@ var virtualProfile = result.Value;
 var verifyResult = virtualProfile.Verify();
 
 // But accessing something unresolved throws:
-var name = virtualProfile.PersonalInfo.FullName; 
-// ↑ Throws VirtualPropertyAccessException since PersonalInfo wasn't resolved 
+var name = virtualProfile.PersonalInfo.FullName;
+// ↑ Throws VirtualPropertyAccessException since PersonalInfo wasn't resolved
 ```
 ---
 
@@ -148,6 +144,64 @@ Because I’ve been there:
 If anything here helps you think more clearly, ship more confidently, or discuss DDD more deeply — then it was worth publishing.
 
 Please feel free to fork, adapt, evolve, simplify, or challenge what you find here.
+
+---
+
+### ⚙️ What Might Be Coming Next (Experimental Ideas)
+
+While Lightweight.Ddd is intentionally minimal, there are a couple of directions I’m exploring based on real-world  challenges I’ve encountered while working on Domain-Driven projects, both in personal explorations and commercial environments.
+
+#### 🚦 1. Railway-Oriented Result Extensions
+
+One potential area of improvement is a lightweight, fluent API for `Result<T>` and `Result<TError, TValue>`, focused on expressive success/failure pipelines.
+
+Planned additions include:
+
+| Method           | Purpose                                                                 |
+|------------------|-------------------------------------------------------------------------|
+| `Then`           | Chain monadic operations (`Result<T> -> Result<U>`)                     |
+| `Map`            | Transform the success value (`T -> U`), preserving structure            |
+| `Catch`          | Handle or react to failure without changing the result                  |
+| `CatchIf`        | Handle failures conditionally based on error predicate                 |
+| `Tap`            | Side-effect on success (e.g., logging)                                  |
+| `TapFailure`     | Side-effect on failure                                                  |
+| `Ensure`         | Enforce domain invariants — convert success into failure                |
+| `Match`          | Terminal: exhaustively handle both branches and return raw value       |
+
+Design goals:
+- Async support via overloads (no `Async` postfix)
+- Terse and idiomatic naming (`Then`, `Tap`, etc.)
+- Designed for real-world domain logic, not academic monad purity
+
+### 🌱 2. Domain Effects (Async Side Effects with Boundaries)
+
+I’ve been experimenting with a clean domain-level model for **Domain Effects**:
+- Effects are not raised directly by aggregates
+- Instead, they are often produced by **domain event handlers**, allowing flexible many-to-many relationships between events and effects
+- They represent **meaningful async operations** that happen as a result of domain behavior (e.g., sending notifications, scheduling delayed domain actions, background image processing, or publishing integration events)
+
+In some projects, I’ve implemented this with:
+- A **transactional outbox** to persist effects alongside the aggregate
+- A **workflow** that:
+  1. Retrieves batches of effects (prioritized)
+  2. Resolves effect handlers
+  3. Applies them (in parallel if needed)
+  4. Updates their statuses (e.g. success/failure)
+
+What’s important is that this design lives entirely in the **domain layer**, relying only on clean **ports/abstractions**.  
+While it includes orchestration logic (e.g., batching, retries, resolution), these operations are delegated to injected services — keeping the core workflow free from infrastructure concerns and easily adaptable across different persistence or messaging implementations.
+
+✅ This approach has proven to be **reliable in both monolithic and distributed (microservices) architectures**.  
+In monoliths, domain effect handlers may perform the operations directly.  
+In service-based architectures, they can trigger **integration events** or enqueue work — without compromising consistency.
+
+> 📝 These ideas are already implemented in some of my domain-driven projects where effects are persisted transactionally, prioritized based on domain-defined importance, and handled via clean abstractions.  
+> I don’t yet know if I’ll have the time or energy to extract and adapt these components for this toolkit — but if I do, they could serve as a solid foundation for modeling domain effects and enabling reliable async workflows across bounded contexts.
+
+If extracted, this might take the form of:
+- A clean **domain effect abstraction**
+- A **base class** relying only on ports
+- Sample orchestration patterns
 
 ---
 
