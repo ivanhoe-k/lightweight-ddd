@@ -13,6 +13,6 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
         : VirtualProperty<DummyEntity, T, BrokenVirtualDummyProperty<T>>
         where T : notnull
     {
-        private BrokenVirtualDummyProperty(string x) : base(x, "", default!) { }
+        private BrokenVirtualDummyProperty(string x) : base(x, "", false, default!) { }
     }
 }

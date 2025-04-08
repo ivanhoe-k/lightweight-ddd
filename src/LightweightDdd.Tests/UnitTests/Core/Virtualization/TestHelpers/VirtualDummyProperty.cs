@@ -16,8 +16,8 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
         { 
         }
 
-        private VirtualDummyProperty(string entityName, string propertyName, TProperty value)
-            : base(entityName, propertyName, value) 
+        private VirtualDummyProperty(string entityName, string propertyName, bool hasChanged, TProperty value)
+            : base(entityName, propertyName, hasChanged, value) 
         { 
         }
     }

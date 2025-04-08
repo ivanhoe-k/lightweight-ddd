@@ -53,12 +53,15 @@ namespace LightweightDdd.Domain.Virtualization
         /// </summary>
         /// <param name="entityName">The name of the entity that owns the virtual property.</param>
         /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="hasChanged">
+        /// Indicates whether the value was set via domain logic (<c>true</c>) or via hydration (<c>false</c>).
+        /// </param>
         /// <param name="value">The resolved value to assign. Must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="value"/> is <c>null</c>, as this virtual property does not allow null values.
         /// </exception>
-        protected VirtualProperty(string entityName, string propertyName, TProperty value)
-            : base(entityName, propertyName, value)
+        protected VirtualProperty(string entityName, string propertyName, bool hasChanged, TProperty value)
+            : base(entityName, propertyName, hasChanged, value)
         {
             value.ThrowIfNull();
         }
@@ -93,22 +96,29 @@ namespace LightweightDdd.Domain.Virtualization
     /// <remarks>
     /// <para>
     /// This is a built-in sealed variant of <see cref="VirtualProperty{TEntity, TProperty, TSelf}"/> 
-    /// that simplifies usage for cases where defining a dedicated subclass would be excessive.
+    /// designed for convenience when defining a custom subclass is unnecessary.
     /// </para>
     ///
     /// <para>
-    /// Internally, this type relies on reflection to construct instances, even though its constructors are <c>private</c>.
-    /// This is enabled via reflection and constructor metadata caching inside the virtualization infrastructure.
+    /// This type participates fully in the Virtual Entity Pattern, supporting both <b>hydration</b>
+    /// (via <see cref="IResolvable{TEntity, TProperty, TVirtual}.Resolve"/>) and
+    /// domain-level <b>mutation</b> (via <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Update"/>).
     /// </para>
     ///
     /// <para>
-    /// This type must be instantiated via <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Unresolved"/> and 
-    /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Resolve"/> factory methods only.
-    /// Public constructors are intentionally not exposed.
+    /// All instantiation is done via internal infrastructure using reflection, based on metadata cached
+    /// by <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}"/>. Although constructors are <c>private</c>,
+    /// the virtualization layer handles creation via cached <see cref="System.Reflection.ConstructorInfo"/> instances.
+    /// </para>
+    ///
+    /// <para>
+    /// Consumers should use static factory methods such as <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Unresolved"/>
+    /// or rely on infrastructure like <see cref="VirtualArgsBuilderBase{TEntity, TArgs}"/> to hydrate this property.
+    /// Public construction is intentionally unsupported and will result in runtime failure.
     /// </para>
     /// </remarks>
-    /// <typeparam name="TEntity">The entity type that owns the property.</typeparam>
-    /// <typeparam name="TProperty">The non-nullable value type of the virtual property.</typeparam>
+    /// <typeparam name="TEntity">The domain entity type that owns this virtual property.</typeparam>
+    /// <typeparam name="TProperty">The non-nullable value type represented by this virtual property.</typeparam>
     public sealed record VirtualProperty<TEntity, TProperty> : VirtualProperty<TEntity, TProperty, VirtualProperty<TEntity, TProperty>>
         where TEntity : IDomainEntity
         where TProperty : notnull
@@ -128,12 +138,15 @@ namespace LightweightDdd.Domain.Virtualization
         /// </summary>
         /// <param name="entityName">The name of the entity that owns the virtual property.</param>
         /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="hasChanged">
+        /// Indicates whether the value was set via domain logic (<c>true</c>) or via hydration (<c>false</c>).
+        /// </param>
         /// <param name="value">The resolved value to assign. Must not be <c>null</c>.</param>
         /// <exception cref="ArgumentNullException">
         /// Thrown if <paramref name="value"/> is <c>null</c>, as this virtual property does not allow null values.
         /// </exception>
-        private VirtualProperty(string entityName, string propertyName, TProperty value)
-            : base(entityName, propertyName, value)
+        private VirtualProperty(string entityName, string propertyName, bool hasChanged, TProperty value)
+            : base(entityName, propertyName, hasChanged, value)
         {
         }
     }

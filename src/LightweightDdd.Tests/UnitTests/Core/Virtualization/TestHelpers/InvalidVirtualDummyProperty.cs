@@ -9,8 +9,8 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
     internal sealed record InvalidVirtualDummyProperty
         : VirtualProperty<DummyEntity, int, InvalidVirtualDummyProperty>
     {
-        public InvalidVirtualDummyProperty(string entity, string property, int value)
-            : base(entity, property, value) 
+        public InvalidVirtualDummyProperty(string entity, string property, bool hasChanged, int value)
+            : base(entity, property, hasChanged, value) 
         {
         }
     }

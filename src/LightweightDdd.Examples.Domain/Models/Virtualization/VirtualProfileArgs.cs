@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace LightweightDdd.Examples.Domain.Models.Virtualization
 {
-    public record class VirtualProfileArgs : IVirtualArgs<VirtualProfileArgsBuilder, VirtualProfileArgs>
+    public record class VirtualProfileArgs : IVirtualArgs<Profile, VirtualProfileArgs, VirtualProfileArgsBuilder>
     {
         private VirtualProfileArgs()
         {

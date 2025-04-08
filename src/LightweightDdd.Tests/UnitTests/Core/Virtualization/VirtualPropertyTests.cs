@@ -12,6 +12,76 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
     public sealed class VirtualPropertyTests
     {
         [Fact]
+        public void VirtualProperty_ShouldTrackChange_WhenUpdated()
+        {
+            // Arrange
+            var property = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age);
+
+            // Act
+            var updated = property.Update(123);
+
+            // Assert
+            updated.GetValueOrThrow().Should().Be(123);
+            updated.HasChanged.Should().BeTrue();
+        }
+
+        [Fact]
+        public void VirtualProperty_ShouldAllowMultipleUpdates()
+        {
+            // Arrange
+            var property = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age);
+
+            // Act
+            var updated1 = property.Update(1);
+            var updated2 = updated1.Update(2);
+
+            // Assert
+            updated1.GetValueOrThrow().Should().Be(1);
+            updated2.GetValueOrThrow().Should().Be(2);
+        }
+
+        [Fact]
+        public void VirtualProperty_ShouldBeResolved_WhenUpdated()
+        {
+            // Arrange
+            var property = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age);
+
+            // Act
+            var updated = property.Update(55);
+
+            // Assert
+            updated.HasResolved.Should().BeTrue();
+        }
+
+        [Fact]
+        public void NullableVirtualProperty_ShouldAllowUpdate_WithNull()
+        {
+            // Arrange
+            var property = NullableVirtualProperty<DummyEntity, string?>.Unresolved(x => x.OptionalName);
+
+            // Act
+            var updated = property.Update(null);
+
+            // Assert
+            updated.GetValueOrThrow().Should().BeNull();
+            updated.HasChanged.Should().BeTrue();
+        }
+
+        [Fact]
+        public void VirtualProperty_ShouldThrow_WhenUpdatedWithNull()
+        {
+            // Arrange
+            var property = VirtualProperty<DummyEntity, string>.Unresolved(x => x.Name);
+
+            // Act
+            Action act = () => property.Update(null!);
+
+            // Assert
+            act.Should().Throw<VirtualPropertyValueException>()
+               .WithMessage($"Null value is not allowed for virtual property '{property.PropertyName}' on entity '{property.EntityName}'.");
+        }
+
+        [Fact]
         public void VirtualProperty_ShouldThrow_WhenAccessedUnresolved()
         {
             // Arrange
@@ -23,34 +93,6 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
             // Assert
             act.Should().Throw<VirtualPropertyAccessException>()
                 .WithMessage("*Age*DummyEntity*");
-        }
-
-        [Fact]
-        public void VirtualProperty_ShouldReturnValue_WhenResolved()
-        {
-            // Arrange
-            var expected = 100;
-            var property = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age);
-
-            // Act
-            var resolved = property.Resolve(expected);
-
-            // Assert
-            resolved.GetValueOrThrow().Should().Be(expected);
-        }
-
-        [Fact]
-        public void VirtualProperty_ShouldThrow_WhenResolvedWithNull()
-        {
-            // Arrange
-            var property = VirtualProperty<DummyEntity, string>.Unresolved(x => x.Name);
-
-            // Act
-            Action act = () => property.Resolve(null!);
-
-            // Assert
-            act.Should().Throw<VirtualPropertyValueException>()
-                .WithMessage($"Null value is not allowed for virtual property '{property.PropertyName}' on entity '{property.EntityName}'.");
         }
 
         [Fact]
@@ -79,33 +121,6 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         }
 
         [Fact]
-        public void NullableVirtualProperty_ShouldReturnNull_WhenResolvedWithNull()
-        {
-            // Arrange
-            var property = NullableVirtualProperty<DummyEntity, string>.Unresolved(x => x.OptionalName);
-
-            // Act
-            var resolved = property.Resolve(null);
-
-            // Assert
-            resolved.GetValueOrThrow().Should().BeNull();
-        }
-
-        [Fact]
-        public void NullableVirtualProperty_ShouldReturnValue_WhenResolved()
-        {
-            // Arrange
-            var expected = "resolved";
-            var property = NullableVirtualProperty<DummyEntity, string>.Unresolved(x => x.OptionalName);
-
-            // Act
-            var resolved = property.Resolve(expected);
-
-            // Assert
-            resolved.GetValueOrThrow().Should().Be(expected);
-        }
-
-        [Fact]
         public void VirtualProperty_ShouldThrow_WhenUnresolvedReceivesNullExpression()
         {
             // Arrange
@@ -120,36 +135,35 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
         }
 
         [Fact]
-        public void VirtualProperty_ShouldReturnNewResolved_WhenResolveCalledTwice()
+        public void ResolveProperty_ShouldMarkAsResolved_WithoutChangeTracking()
         {
             // Arrange
-            var first = 42;
-            var secondValue = 99;
-            var original = VirtualProperty<DummyEntity, int>.Unresolved(x => x.Age)
-                .Resolve(first);
+            var builder = DummyEntityArgs.GetBuilder();
 
             // Act
-            var second = original.Resolve(secondValue);
+            var args = builder.WithAge(42).Build();
 
             // Assert
-            second.GetValueOrThrow().Should().Be(secondValue);
-            original.GetValueOrThrow().Should().Be(first);
+            args.Age.GetValueOrThrow().Should().Be(42);
+            args.Age.HasResolved.Should().BeTrue();
+            args.Age.HasChanged.Should().BeFalse(); // Only resolved via builder
         }
 
         [Fact]
-        public void NullableVirtualProperty_ShouldSupportValueTypesWithNullability()
+        public void ResolvedProperty_ShouldBecomeChanged_WhenUpdatedAfterHydration()
         {
             // Arrange
-            var expected = 123;
-            var property = NullableVirtualProperty<DummyEntity, int?>.Unresolved(x => x.Rating);
+            var builder = DummyEntityArgs.GetBuilder();
+            var args = builder.WithAge(42).Build();
 
             // Act
-            var resolvedWithNull = property.Resolve(null);
-            var resolvedWithValue = property.Resolve(expected);
+            var updated = args.Age.Update(99);
 
             // Assert
-            resolvedWithNull.GetValueOrThrow().Should().BeNull();
-            resolvedWithValue.GetValueOrThrow().Should().Be(expected);
+            updated.GetValueOrThrow().Should().Be(99);
+            updated.HasResolved.Should().BeTrue();
+            updated.HasChanged.Should().BeTrue(); // Because it was mutated after hydration
         }
+
     }
 }

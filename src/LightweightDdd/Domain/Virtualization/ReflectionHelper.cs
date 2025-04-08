@@ -39,7 +39,7 @@ namespace LightweightDdd.Domain.Virtualization
         {
             propertyType.ThrowIfNull();
 
-            return new[] { typeof(string), typeof(string), propertyType };
+            return new[] { typeof(string), typeof(string), typeof(bool), propertyType };
         }
 
         /// <summary>

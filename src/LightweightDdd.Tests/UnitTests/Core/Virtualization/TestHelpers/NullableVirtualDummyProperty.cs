@@ -14,8 +14,8 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization.TestHelpers
         { 
         }
 
-        private NullableVirtualDummyProperty(string entityName, string propertyName, TProperty? value)
-            : base(entityName, propertyName, value) 
+        private NullableVirtualDummyProperty(string entityName, string propertyName, bool hasChanged, TProperty? value)
+            : base(entityName, propertyName, hasChanged, value) 
         {
         }
     }

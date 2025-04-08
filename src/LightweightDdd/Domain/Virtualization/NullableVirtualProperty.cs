@@ -52,9 +52,12 @@ namespace LightweightDdd.Domain.Virtualization
         /// </summary>
         /// <param name="entityName">The name of the entity that owns the virtual property.</param>
         /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="hasChanged">
+        /// Indicates whether the value was set via domain logic (<c>true</c>) or via hydration (<c>false</c>).
+        /// </param>
         /// <param name="value">The resolved value to assign. May be <c>null</c>.</param>
-        protected NullableVirtualProperty(string entityName, string propertyName, TProperty? value) 
-            : base(entityName, propertyName, value)
+        protected NullableVirtualProperty(string entityName, string propertyName, bool hasChanged, TProperty? value) 
+            : base(entityName, propertyName, hasChanged, value)
         { 
         }
 
@@ -76,23 +79,29 @@ namespace LightweightDdd.Domain.Virtualization
     /// <remarks>
     /// <para>
     /// This is a built-in sealed variant of <see cref="NullableVirtualProperty{TEntity, TProperty, TSelf}"/>
-    /// that simplifies usage for cases where defining a dedicated subclass would be excessive.
+    /// intended for convenience when defining a custom virtual property type is unnecessary.
     /// </para>
     ///
     /// <para>
-    /// Internally, this type relies on reflection to construct instances, even though its constructors are <c>private</c>.
-    /// This is enabled via reflection and constructor metadata caching inside the virtualization infrastructure.
+    /// This type supports both <b>hydration</b> (via
+    /// <see cref="IResolvable{TEntity, TProperty, TVirtual}.Resolve"/>) and
+    /// domain-level <b>mutation</b> (via <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Update"/>).
     /// </para>
     ///
     /// <para>
-    /// This type must be instantiated via
-    /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Unresolved"/> and
-    /// <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Resolve"/> factory methods only.
-    /// Public constructors are intentionally not exposed.
+    /// Like all virtual property types, it relies on reflection-based instantiation via constructor metadata
+    /// cached internally by <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}"/>.
+    /// Even though its constructors are <c>private</c>, the virtualization infrastructure handles creation safely.
+    /// </para>
+    ///
+    /// <para>
+    /// Consumers should use the static factory method <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Unresolved"/>
+    /// or rely on <see cref="VirtualArgsBuilderBase{TEntity, TArgs}"/> to hydrate this property. Public instantiation is unsupported
+    /// and will result in runtime failure.
     /// </para>
     /// </remarks>
-    /// <typeparam name="TEntity">The entity type that owns the property.</typeparam>
-    /// <typeparam name="TProperty">The nullable value type of the virtual property.</typeparam>
+    /// <typeparam name="TEntity">The domain entity type that owns this virtual property.</typeparam>
+    /// <typeparam name="TProperty">The nullable value type represented by this virtual property.</typeparam>
     public sealed record NullableVirtualProperty<TEntity, TProperty> : NullableVirtualProperty<TEntity, TProperty, NullableVirtualProperty<TEntity, TProperty>>
         where TEntity : IDomainEntity
     {
@@ -111,9 +120,12 @@ namespace LightweightDdd.Domain.Virtualization
         /// </summary>
         /// <param name="entityName">The name of the entity that owns the virtual property.</param>
         /// <param name="propertyName">The name of the property being virtualized.</param>
+        /// <param name="hasChanged">
+        /// Indicates whether the value was set via domain logic (<c>true</c>) or via hydration (<c>false</c>).
+        /// </param>
         /// <param name="value">The resolved value to assign. May be <c>null</c>.</param>
-        private NullableVirtualProperty(string entityName, string propertyName, TProperty? value) 
-            : base(entityName, propertyName, value) 
+        private NullableVirtualProperty(string entityName, string propertyName, bool hasChanged, TProperty? value) 
+            : base(entityName, propertyName, hasChanged, value) 
         {
         }
     }

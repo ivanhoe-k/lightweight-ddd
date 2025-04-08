@@ -7,88 +7,85 @@ using System.Collections.Generic;
 
 namespace LightweightDdd.Examples.Domain.Models.Virtualization
 {
-    public sealed class VirtualProfileArgsBuilder : IVirtualArgsBuilder<VirtualProfileArgs>
+    public sealed class VirtualProfileArgsBuilder : VirtualArgsBuilderBase<Profile, VirtualProfileArgs>
     {
-        private VirtualProfileArgs _args;
-
-        public VirtualProfileArgsBuilder(VirtualProfileArgs args)
+        public VirtualProfileArgsBuilder(VirtualProfileArgs args) : base(args)
         {
-            _args = args;
         }
 
-        public VirtualProfileArgs Build()
+        public override VirtualProfileArgs Build()
         {
-            return _args;
+            return Args;
         }
 
         public VirtualProfileArgsBuilder WithPersonalInfo(PersonalInfo value)
         {
-            _args = _args with
+            Args = Args with
             {
-                PersonalInfo = _args.PersonalInfo.Resolve(value)
+                PersonalInfo = ResolveProperty(Args.PersonalInfo, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithAvatar(Media value)
         {
-            _args = _args with
+            Args = Args with
             {
-                Avatar = _args.Avatar.Resolve(value)
+                Avatar = ResolveProperty(Args.Avatar, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithBackgroundImage(Media value)
         {
-            _args = _args with
+            Args = Args with
             {
-                BackgroundImage = _args.BackgroundImage.Resolve(value)
+                BackgroundImage = ResolveProperty(Args.BackgroundImage, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithGallery(IReadOnlyCollection<Media> value)
         {
-            _args = _args with
+            Args = Args with
             {
-                Gallery = _args.Gallery.Resolve(value)
+                Gallery = ResolveProperty(Args.Gallery, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithAddress(Address value)
         {
-            _args = _args with
+            Args = Args with
             {
-                Address = _args.Address.Resolve(value)
+                Address = ResolveProperty(Args.Address, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithVerification(VerificationStatus value)
         {
-            _args = _args with
+            Args = Args with
             {
-                Verification = _args.Verification.Resolve(value)
+                Verification = ResolveProperty(Args.Verification, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithIsOnboarded(bool value)
         {
-            _args = _args with
+            Args = Args with
             {
-                IsOnboarded = _args.IsOnboarded.Resolve(value)
+                IsOnboarded = ResolveProperty(Args.IsOnboarded, value)
             };
             return this;
         }
 
         public VirtualProfileArgsBuilder WithSubscription(SubscriptionPlan value)
         {
-            _args = _args with
+            Args = Args with
             {
-                Subscription = _args.Subscription.Resolve(value)
+                Subscription = ResolveProperty(Args.Subscription, value)
             };
             return this;
         }

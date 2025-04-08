@@ -23,49 +23,49 @@ namespace LightweightDdd.Examples.Domain.Models.Virtualization
         public override PersonalInfo? PersonalInfo
         {
             get => personalInfo.GetValueOrThrow();
-            protected set => personalInfo = personalInfo.Resolve(value);
+            protected set => personalInfo = personalInfo.Update(value);
         }
 
         public override Media? Avatar
         {
             get => avatar.GetValueOrThrow();
-            protected set => avatar = avatar.Resolve(value);
+            protected set => avatar = avatar.Update(value);
         }
 
         public override Media? BackgroundImage
         {
             get => backgroundImage.GetValueOrThrow();
-            protected set => backgroundImage = backgroundImage.Resolve(value);
+            protected set => backgroundImage = backgroundImage.Update(value);
         }
 
         public override Address? Address
         {
             get => address.GetValueOrThrow();
-            protected set => address = address.Resolve(value);
+            protected set => address = address.Update(value);
         }
 
         public override SubscriptionPlan Subscription
         {
             get => subscription.GetValueOrThrow();
-            protected set => subscription = subscription.Resolve(value);
+            protected set => subscription = subscription.Update(value);
         }
 
         public override IReadOnlyCollection<Media> Gallery
         {
             get => gallery.GetValueOrThrow();
-            protected set => gallery = gallery.Resolve(value);
+            protected set => gallery = gallery.Update(value);
         }
 
         public override VerificationStatus Verification
         {
             get => verification.GetValueOrThrow();
-            protected set => verification = verification.Resolve(value);
+            protected set => verification = verification.Update(value);
         }
 
         public override bool IsOnboarded
         {
             get => isOnboarded.GetValueOrThrow();
-            protected set => isOnboarded = isOnboarded.Resolve(value);
+            protected set => isOnboarded = isOnboarded.Update(value);
         }
 
         public VirtualProfile(Guid id, long version, VirtualProfileArgs args) : base(id, version)

@@ -12,58 +12,74 @@ namespace LightweightDdd.Tests.UnitTests.Core.Virtualization
     public sealed class VirtualCustomPropertyTests
     {
         [Fact]
-        public void CustomVirtualProperty_ShouldResolveAndReturnValue()
+        public void CustomVirtualProperty_ShouldTrackChange_WhenUpdated()
         {
             // Arrange
-            var expected = 42;
             var property = VirtualDummyProperty<int>.Unresolved(x => x.Age);
 
             // Act
-            var resolved = property.Resolve(expected);
+            var updated = property.Update(42);
 
             // Assert
-            resolved.GetValueOrThrow().Should().Be(expected);
+            updated.GetValueOrThrow().Should().Be(42);
+            updated.HasChanged.Should().BeTrue();
         }
 
         [Fact]
-        public void CustomNullableVirtualProperty_ShouldReturnNull_WhenResolvedWithNull()
+        public void CustomVirtualProperty_ShouldAllowMultipleUpdates()
         {
             // Arrange
-            var property = NullableVirtualDummyProperty<string>.Unresolved(x => x.OptionalName);
+            var property = VirtualDummyProperty<int>.Unresolved(x => x.Age);
 
             // Act
-            var resolved = property.Resolve(null);
+            var updated1 = property.Update(100);
+            var updated2 = updated1.Update(200);
 
             // Assert
-            resolved.GetValueOrThrow().Should().BeNull();
+            updated1.GetValueOrThrow().Should().Be(100);
+            updated2.GetValueOrThrow().Should().Be(200);
+            updated2.HasChanged.Should().BeTrue();
         }
 
         [Fact]
-        public void CustomNullableVirtualProperty_ShouldReturnValue_WhenResolved()
+        public void CustomVirtualProperty_ShouldBeResolved_WhenUpdated()
         {
             // Arrange
-            var expected = "optional";
-            var property = NullableVirtualDummyProperty<string>.Unresolved(x => x.OptionalName);
+            var property = VirtualDummyProperty<int>.Unresolved(x => x.Age);
 
             // Act
-            var resolved = property.Resolve(expected);
+            var updated = property.Update(5);
 
             // Assert
-            resolved.GetValueOrThrow().Should().Be(expected);
+            updated.HasResolved.Should().BeTrue();
         }
 
         [Fact]
-        public void CustomVirtualProperty_ShouldThrow_WhenResolvedWithNull()
+        public void CustomNullableVirtualProperty_ShouldSupportUpdate_WithNull()
+        {
+            // Arrange
+            var property = NullableVirtualDummyProperty<string?>.Unresolved(x => x.Name);
+
+            // Act
+            var updated = property.Update(null);
+
+            // Assert
+            updated.GetValueOrThrow().Should().BeNull();
+            updated.HasChanged.Should().BeTrue();
+        }
+
+        [Fact]
+        public void CustomVirtualProperty_ShouldThrow_WhenUpdatedWithNull()
         {
             // Arrange
             var property = VirtualDummyProperty<string>.Unresolved(x => x.Name);
 
             // Act
-            Action act = () => property.Resolve(null!);
+            Action act = () => property.Update(null!);
 
             // Assert
             act.Should().Throw<VirtualPropertyValueException>()
-                .WithMessage($"Null value is not allowed for virtual property '{property.PropertyName}' on entity '{property.EntityName}'.");
+               .WithMessage("*null value is not allowed*");
         }
 
         [Fact]

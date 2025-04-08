@@ -15,52 +15,67 @@ namespace LightweightDdd.Domain.Virtualization
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Virtual properties are used to represent values that may be either explicitly resolved or intentionally left unresolved
-    /// during projection, transformation, or selective loading scenarios.
+    /// Virtual properties are designed to represent fields within a virtualized domain entity that may be
+    /// <b>partially hydrated</b> based on the needs of a specific use case. A property can either remain
+    /// unresolved (e.g., intentionally skipped during projection) or be resolved through controlled mechanisms
+    /// during initialization or mutation.
     /// </para>
     ///
     /// <para>
-    /// This type uses the <i>Curiously Recurring Template Pattern (CRTP)</i> via the <typeparamref name="TSelf"/> parameter
-    /// to ensure that static factory methods (<see cref="Unresolved"/>, <see cref="Resolve(TProperty?)"/>) return the correct concrete type.
-    /// </para>
-    ///
-    /// <para>
-    /// Consumers are encouraged to use one of the built-in sealed variants when modeling virtual properties:
+    /// This base type supports two distinct flows:
     /// </para>
     /// <list type="bullet">
-    /// <item>
-    /// <see cref="VirtualProperty{TEntity, TProperty}"/> – for non-nullable properties
-    /// </item>
-    /// <item>
-    /// <see cref="NullableVirtualProperty{TEntity, TProperty}"/> – for nullable properties
-    /// </item>
+    ///   <item>
+    ///     <b>Hydration</b>: The property is resolved once using the internal <see cref="IResolvable{TEntity, TProperty, TSelf}.Resolve"/>
+    ///     method, typically via a builder such as <see cref="VirtualArgsBuilderBase{TEntity, TArgs}"/>. This sets the <see cref="HasResolved"/>
+    ///     flag without marking the property as changed.
+    ///   </item>
+    ///   <item>
+    ///     <b>Mutation</b>: The property is explicitly updated using <see cref="VirtualPropertyBase{TEntity, TProperty, TSelf}.Update"/>, which sets both <see cref="HasResolved"/>
+    ///     and <see cref="HasChanged"/> to <c>true</c>. This is intended for domain-level modifications.
+    ///   </item>
     /// </list>
     ///
     /// <para>
-    /// These types are designed for consistent usage, encapsulation, and safety. Constructors in leaf types should always be
-    /// declared as <b>private</b> or <b>protected</b> to prevent uncontrolled instantiation.
-    /// Public constructors are <b>not supported</b> and will trigger a runtime failure due to enforced reflection-based instantiation rules.
+    /// This type uses the <i>Curiously Recurring Template Pattern (CRTP)</i> via the <typeparamref name="TSelf"/> parameter
+    /// to ensure that strongly typed factory methods such as <see cref="Unresolved"/> and resolution flows return the correct
+    /// virtual property subtype.
     /// </para>
     ///
     /// <para>
-    /// Advanced consumers may define custom virtual property types (e.g., <c>VirtualUserProperty{TProperty}</c>)
-    /// by inheriting from either <see cref="VirtualProperty{TEntity, TProperty, TSelf}"/> or
-    /// <see cref="NullableVirtualProperty{TEntity, TProperty, TSelf}"/> depending on the nullability of the value.
-    /// This allows encapsulating virtual properties for a specific domain entity (e.g., <c>VirtualUser</c>)
-    /// while preserving a consistent naming convention: <c>Virtual&lt;EntityName&gt;Property</c>.
+    /// Consumers are encouraged to use one of the built-in sealed variants:
+    /// </para>
+    /// <list type="bullet">
+    ///   <item>
+    ///     <see cref="VirtualProperty{TEntity, TProperty}"/> – for non-nullable virtual properties
+    ///   </item>
+    ///   <item>
+    ///     <see cref="NullableVirtualProperty{TEntity, TProperty}"/> – for nullable virtual properties
+    ///   </item>
+    /// </list>
+    ///
+    /// <para>
+    /// To ensure consistency and controlled instantiation, concrete virtual property types must declare their constructors as
+    /// <b>private</b> or <b>protected</b>. Public constructors are not supported and will cause a runtime failure during hydration.
+    /// </para>
+    ///
+    /// <para>
+    /// Advanced consumers may define custom virtual property types (e.g., <c>VirtualUserNameProperty</c>) by inheriting from
+    /// either <see cref="VirtualProperty{TEntity, TProperty, TSelf}"/> or
+    /// <see cref="NullableVirtualProperty{TEntity, TProperty, TSelf}"/> depending on the nullability of the value type.
+    /// This enables consistent modeling per entity and improves discoverability of partial projections.
     /// </para>
     /// </remarks>
     /// <typeparam name="TEntity">
-    /// The aggregate root or domain entity type that owns this virtual property.
+    /// The domain entity (typically an aggregate root) that owns this virtual property.
     /// </typeparam>
     /// <typeparam name="TProperty">
-    /// The value type of the virtual property (can be a value object, primitive, or collection).
+    /// The value type held by this virtual property (value object, primitive, collection, etc.).
     /// </typeparam>
     /// <typeparam name="TSelf">
-    /// The self-referencing subtype that inherits from this base class.
-    /// Used for enforcing a clean CRTP-style fluent interface and proper static instantiation.
+    /// The self-referencing type implementing this base class. Used for CRTP-based static typing and fluent APIs.
     /// </typeparam>
-    public abstract record VirtualPropertyBase<TEntity, TProperty, TSelf>
+    public abstract record VirtualPropertyBase<TEntity, TProperty, TSelf> : IResolvable<TEntity, TProperty, TSelf>
         where TEntity : IDomainEntity
         where TSelf : VirtualPropertyBase<TEntity, TProperty, TSelf>
     {
@@ -76,12 +91,13 @@ namespace LightweightDdd.Domain.Virtualization
         /// Cached constructor used when creating resolved virtual property instances
         /// with entity, property, and value provided.
         /// </summary>
-        private static ConstructorInfo? _resolvedCtor;
+        private static ConstructorInfo? _resolvedWithChangeTrackingCtor;
 
         private static bool _initialized;
 
         private readonly TProperty? _value;
-        private readonly bool _isResolved;
+        private readonly bool _hasResolved;
+        private readonly bool _hasChanged;
         private readonly string _propertyName;
         private readonly string _entityName;
 
@@ -100,26 +116,34 @@ namespace LightweightDdd.Domain.Virtualization
             propertyName.ThrowIfNullOrWhiteSpace();
 
             _value = default;
-            _isResolved = false;
+            _hasResolved = false;
+            _hasChanged = false;
             _propertyName = propertyName;
             _entityName = entityName;
         }
 
         /// <summary>
-        /// Initializes a resolved virtual property with a concrete value.
+        /// Initializes a resolved virtual property with a concrete value and change tracking metadata.
         /// </summary>
-        /// <param name="entityName">The name of the owning entity.</param>
-        /// <param name="propertyName">The name of the virtual property.</param>
-        /// <param name="value">The resolved value.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="entityName"/> or <paramref name="propertyName"/> is null or whitespace.</exception>
-        protected VirtualPropertyBase(string entityName, string propertyName, TProperty? value)
+        /// <param name="entityName">The name of the domain entity associated with the property.</param>
+        /// <param name="propertyName">The name of the virtual property being initialized.</param>
+        /// <param name="hasChanged">
+        /// A value indicating whether the property was changed via domain logic (<c>true</c>)
+        /// or resolved through hydration (<c>false</c>).
+        /// </param>
+        /// <param name="value">The resolved or updated value of the property.</param>
+        /// <exception cref="ArgumentException">
+        /// Thrown if <paramref name="entityName"/> or <paramref name="propertyName"/> is <c>null</c> or whitespace.
+        /// </exception>
+        protected VirtualPropertyBase(string entityName, string propertyName, bool hasChanged, TProperty? value)
         {
             entityName.ThrowIfNullOrWhiteSpace();
             propertyName.ThrowIfNullOrWhiteSpace();
 
             _entityName = entityName;
             _propertyName = propertyName;
-            _isResolved = true;
+            _hasResolved = true;
+            _hasChanged = hasChanged;
             _value = value;
         }
 
@@ -132,6 +156,29 @@ namespace LightweightDdd.Domain.Virtualization
         /// Gets the name of the entity type that owns the virtualized property.
         /// </summary>
         public string EntityName => _entityName;
+
+        /// <summary>
+        /// Gets a value indicating whether this virtual property has been resolved through hydration or mutation.
+        /// </summary>
+        /// <remarks>
+        /// This flag is set when the property is initialized using either <see cref="IResolvable{TEntity, TProperty, TVirtual}.Resolve"/>
+        /// during the hydration phase, or via the <c>Update(...)</c> method as part of a domain mutation.
+        ///
+        /// It guarantees that <c>GetValueOrThrow()</c> will no longer throw and that the value is available for use.
+        /// </remarks>
+        public bool HasResolved => _hasResolved;
+
+        /// <summary>
+        /// Gets a value indicating whether the virtual property was explicitly changed via a mutation.
+        /// </summary>
+        /// <remarks>
+        /// This flag is set when <c>Update(...)</c> is called — even if the property was never previously hydrated via
+        /// <see cref="IResolvable{TEntity, TProperty, TVirtual}.Resolve"/>.
+        ///
+        /// This enables change tracking for domain scenarios where the previous value is not needed,
+        /// such as blind overwrites or commands where only the new value matters.
+        /// </remarks>
+        public bool HasChanged => _hasChanged;
 
         /// <summary>
         /// Creates a new unresolved virtual property of type <typeparamref name="TSelf"/>.
@@ -154,19 +201,63 @@ namespace LightweightDdd.Domain.Virtualization
         }
 
         /// <summary>
-        /// Creates a new resolved copy of the current virtual property with the specified value.
+        /// Hydrates the virtual property with the specified value and returns a new resolved instance.
         /// </summary>
         /// <remarks>
-        /// This method is idempotent and side-effect free. Calling <c>Resolve</c> multiple times
-        /// is allowed and results in new immutable instances.
+        /// This method is intended strictly for infrastructure use during the <b>hydration phase</b>
+        /// of a virtual entity — typically by <see cref="VirtualArgsBuilderBase{TEntity, TArgs}"/>.
+        /// It should <b>not</b> be used for domain-level updates or business mutations.
+        ///
+        /// For applying domain-driven changes, use <see cref="Update"/> instead.
+        ///
+        /// <para>
+        /// This method enforces single-use semantics. Calling it on an already resolved property will throw
+        /// a <see cref="VirtualPropertyResolutionException"/>.
+        /// </para>
         /// </remarks>
-        /// <param name="value">The value to resolve this property with.</param>
-        /// <returns>A new resolved instance of <typeparamref name="TSelf"/>.</returns>
-        public TSelf Resolve(TProperty value)
+        /// <param name="value">The value to hydrate the virtual property with.</param>
+        /// <returns>
+        /// A new instance of the virtual property marked as resolved, but not changed.
+        /// </returns>
+        /// <exception cref="VirtualPropertyResolutionException">
+        /// Thrown if the property has already been hydrated. Indicates an improper second resolution,
+        /// typically due to builder misuse or logic error.
+        /// </exception>
+        TSelf IResolvable<TEntity, TProperty, TSelf>.Resolve(TProperty value)
+        {
+            if (_hasResolved)
+            {
+                throw new VirtualPropertyResolutionException(_entityName, _propertyName);
+            }
+
+            ValidateResolvedValue(value);
+
+            return InvokeConstructor(_resolvedWithChangeTrackingCtor!, [_entityName, _propertyName, _hasChanged, value]);
+        }
+
+        /// <summary>
+        /// Applies a mutation to the virtual property using the specified value.
+        /// </summary>
+        /// <remarks>
+        /// This method should be used when the virtual property is modified as part of a business use case,
+        /// independent of whether the original value was hydrated.
+        ///
+        /// It sets both <see cref="HasResolved"/> and <see cref="HasChanged"/> flags, enabling
+        /// downstream logic (such as patch persistence) to track intentional updates.
+        ///
+        /// Unlike <see cref="IResolvable{TEntity, TProperty, TSelf}.Resolve"/>, this method can be called multiple times safely.
+        /// </remarks>
+        /// <param name="value">The new value to apply to the virtual property.</param>
+        /// <returns>
+        /// A new instance of the virtual property marked as both resolved and changed.
+        /// </returns>
+        public TSelf Update(TProperty value)
         {
             ValidateResolvedValue(value);
 
-            return InvokeConstructor(_resolvedCtor!, [_entityName, _propertyName, value]);
+            var hasChanged = true;
+
+            return InvokeConstructor(_resolvedWithChangeTrackingCtor!, [_entityName, _propertyName, hasChanged, value]);
         }
 
         /// <summary>
@@ -185,7 +276,7 @@ namespace LightweightDdd.Domain.Virtualization
         /// </exception>
         public TProperty GetValueOrThrow()
         {
-            if (!_isResolved)
+            if (!_hasResolved)
             {
                 throw new VirtualPropertyAccessException(_entityName, _propertyName);
             }
@@ -228,7 +319,7 @@ namespace LightweightDdd.Domain.Virtualization
                     virtualPropertyType: typeof(TSelf),
                     isUnresolvedCtor: true);
 
-                _resolvedCtor = GetOrThrowConstructor(
+                _resolvedWithChangeTrackingCtor = GetOrThrowConstructor(
                     propertyType: typeof(TProperty),
                     virtualPropertyType: typeof(TSelf),
                     isUnresolvedCtor: false);
