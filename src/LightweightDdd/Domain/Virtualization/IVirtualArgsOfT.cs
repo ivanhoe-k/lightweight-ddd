@@ -17,11 +17,11 @@ namespace LightweightDdd.Domain.Virtualization
     /// <typeparam name="TEntity">
     /// The domain entity type for which the virtual entity is being constructed.
     /// </typeparam>
-    /// <typeparam name="TBuilder">
-    /// The concrete builder type that can be used to configure and construct this argument instance.
-    /// </typeparam>
     /// <typeparam name="TSelf">
     /// The type of the virtual arguments class itself.
+    /// </typeparam>
+    /// <typeparam name="TBuilder">
+    /// The concrete builder type that can be used to configure and construct this argument instance.
     /// </typeparam>
     /// <remarks>
     /// This interface ensures that:

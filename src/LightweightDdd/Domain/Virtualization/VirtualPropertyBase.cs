@@ -75,7 +75,8 @@ namespace LightweightDdd.Domain.Virtualization
     /// <typeparam name="TSelf">
     /// The self-referencing type implementing this base class. Used for CRTP-based static typing and fluent APIs.
     /// </typeparam>
-    public abstract record VirtualPropertyBase<TEntity, TProperty, TSelf> : IResolvable<TEntity, TProperty, TSelf>
+    public abstract record VirtualPropertyBase<TEntity, TProperty, TSelf> 
+            : IVirtualProperty, IResolvable<TEntity, TProperty, TSelf>
         where TEntity : IDomainEntity
         where TSelf : VirtualPropertyBase<TEntity, TProperty, TSelf>
     {
